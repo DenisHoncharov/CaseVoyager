@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/categories', [\App\Http\Controllers\Api\CategoryApiController::class, 'index']);
+Route::get('/case/{case}', [\App\Http\Controllers\Api\CasesApiController::class, 'show']);
+Route::get('/openCase/{case}', [\App\Http\Controllers\Api\CasesApiController::class, 'openCase']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
