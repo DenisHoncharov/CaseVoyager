@@ -11,12 +11,6 @@ class Item extends Model
 
     protected $table = 'items';
 
-    public function categories()
-    {
-        //TODO: update this relations (not used)
-        return $this->belongsToMany(Category::class);
-    }
-
     public function cases()
     {
         return $this->belongsToMany(Cases::class);
