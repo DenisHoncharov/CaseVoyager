@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CasesRequest;
+use App\Http\Resources\CasesResource;
 use App\Models\Cases;
 use Illuminate\Http\Request;
 
 class CasesApiController extends Controller
 {
+    public function index(Request $request)
+    {
+        return CasesResource::collection(Cases::all());
+    }
+
     public function show(Request $request, Cases $case)
     {
         return [
@@ -17,10 +24,30 @@ class CasesApiController extends Controller
             'price' => $case->price,
             'description' => $case->description,
             'items' => $case->items()
-                ->wherePivot('drop_percentage', '>',  0)
                 ->withPivot('drop_percentage')
                 ->get()
         ];
+    }
+
+    public function create(CasesRequest $request)
+    {
+        $case = Cases::create($request->validated());
+
+        return response()->json($case);
+    }
+
+    public function update(CasesRequest $request, Cases $case)
+    {
+        $case = $case->update($request->validated());
+
+        return response()->json($case);
+    }
+
+    public function delete(Cases $case)
+    {
+        $case->delete();
+
+        return response()->json();
     }
 
     public function openCase(Cases $case)
