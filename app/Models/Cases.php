@@ -9,6 +9,7 @@ class Cases extends Model
 {
     use HasFactory;
     protected $table = 'cases';
+    protected $guarded = [];
 
     public function categories()
     {

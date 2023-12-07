@@ -19,7 +19,7 @@ class CasesFactory extends Factory
     {
         return [
             'name' => ucwords(fake()->unique()->word),
-            'type' => fake()->text(5),
+            'type' => 'CS2', //TODO: remove hardcode after add new types
             'price' => fake()->randomFloat(2, 0,100),
             'image' => fake()->imageUrl,
             'description' => fake()->text()

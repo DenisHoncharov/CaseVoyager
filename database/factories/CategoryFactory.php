@@ -19,7 +19,7 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => ucwords(fake()->unique()->word),
-            'type' => fake()->text(5),
+            'type' => 'CS2', //TODO: remove hardcode after add new types
             'image' => fake()->imageUrl
         ];
     }

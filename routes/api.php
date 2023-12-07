@@ -1,6 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\Authentication\AuthApiController;
+use App\Http\Controllers\Api\CasesApiController;
+use App\Http\Controllers\Api\CategoryApiController;
+use App\Http\Controllers\Api\ItemApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +17,31 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/categories', [\App\Http\Controllers\Api\CategoryApiController::class, 'index']);
-Route::get('/case/{case}', [\App\Http\Controllers\Api\CasesApiController::class, 'show']);
-Route::get('/openCase/{case}', [\App\Http\Controllers\Api\CasesApiController::class, 'openCase']);
+Route::post('/auth/login', [AuthApiController::class, 'login'])->name('api.login');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('categories')->name('api.categories.')->group(function () {
+        Route::get('/', [CategoryApiController::class, 'index'])->name('all');
+        Route::post('/create', [CategoryApiController::class, 'create'])->name('create');
+        Route::put('/{category}', [CategoryApiController::class, 'update'])->name('update');
+        Route::delete('/{category}', [CategoryApiController::class, 'delete'])->name('delete');
+    });
+
+    Route::prefix('cases')->name('api.cases.')->group(function () {
+        Route::get('/open/{case}', [CasesApiController::class, 'openCase'])->name('open');
+
+        Route::get('/', [CasesApiController::class, 'index'])->name('all');
+        Route::get('/{case}', [CasesApiController::class, 'show'])->name('show');
+        Route::post('/create', [CasesApiController::class, 'create'])->name('create');
+        Route::put('/{case}', [CasesApiController::class, 'update'])->name('update');
+        Route::delete('/{case}', [CasesApiController::class, 'delete'])->name('delete');
+    });
+
+    Route::prefix('items')->name('api.items.')->group(function () {
+        Route::get('/', [ItemApiController::class, 'index'])->name('all');
+        Route::get('/{item}', [ItemApiController::class, 'show'])->name('show');
+        Route::post('/create', [ItemApiController::class, 'create'])->name('create');
+        Route::put('/{item}', [ItemApiController::class, 'update'])->name('update');
+        Route::delete('/{item}', [ItemApiController::class, 'delete'])->name('delete');
+    });
 });
