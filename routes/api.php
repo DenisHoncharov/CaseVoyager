@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\Authentication\AuthApiController;
 use App\Http\Controllers\Api\CasesApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\ItemApiController;
@@ -16,9 +15,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::post('/auth/login', [AuthApiController::class, 'login'])->name('api.login');
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('categories')->name('api.categories.')->group(function () {
         Route::get('/', [CategoryApiController::class, 'index'])->name('all');
