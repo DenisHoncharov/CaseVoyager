@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CasesApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\ItemApiController;
+use App\Http\Controllers\Api\TypeApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,5 +44,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [ItemApiController::class, 'create'])->name('create');
         Route::put('/{item}', [ItemApiController::class, 'update'])->name('update');
         Route::delete('/{item}', [ItemApiController::class, 'delete'])->name('delete');
+    });
+
+    Route::prefix('types')->name('api.types.')->group(function() {
+        Route::get('/', [TypeApiController::class, 'index'])->name('all');
+        Route::get('/{type}', [TypeApiController::class, 'show'])->name('show');
+        Route::post('/create', [TypeApiController::class, 'create'])->name('create');
+        Route::put('/{type}', [TypeApiController::class, 'update'])->name('update');
+        Route::delete('/{type}', [TypeApiController::class, 'delete'])->name('delete');
     });
 });

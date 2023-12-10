@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Type;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,8 +18,8 @@ class ItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucwords(fake()->unique()->word),
-            'type' => 'CS2', //TODO: remove hardcode after add new types
+            'name' => ucwords(fake()->unique()->text(12)),
+            'type_id' => Type::factory()->create(),
             'price' => fake()->randomFloat(2, 0,100),
             'quality' => fake()->randomFloat(2, 0,100),
             'rarity' => fake()->text(10),

@@ -17,6 +17,7 @@ class CasesResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'type' => $this->type,
             'price' => $this->price,
             'image' => $this->image,
             'description' => $this->description

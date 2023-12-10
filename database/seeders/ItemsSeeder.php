@@ -12,7 +12,7 @@ class ItemsSeeder extends Seeder
      */
     public function run(): void
     {
-        if(Item::count() === 0) {
+        if(Item::count() === 0 && !app()->environment('production')) {
             Item::factory()->create(['id' => 1, 'name' => 'Item 1']);
             Item::factory()->create(['id' => 2, 'name' => 'Item 2']);
             Item::factory()->create(['id' => 3, 'name' => 'Item 3']);

@@ -16,4 +16,9 @@ class Category extends Model
     {
         return $this->belongsToMany(Cases::class, 'case_category', 'category_id', 'cases_id');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(Type::class);
+    }
 }

@@ -12,7 +12,7 @@ class CaseCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        if (CaseCategory::count() === 0) {
+        if (CaseCategory::count() === 0 && !app()->environment('production')) {
             CaseCategory::insert([
                 'cases_id' => 1,
                 'category_id' => 1,

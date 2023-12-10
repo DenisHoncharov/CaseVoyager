@@ -12,7 +12,7 @@ class CaseItemSeeder extends Seeder
      */
     public function run(): void
     {
-        if (CaseItem::count() === 0) {
+        if (CaseItem::count() === 0 && !app()->environment('production')) {
             //case id 1
             CaseItem::insert([
                 'cases_id' => 1,

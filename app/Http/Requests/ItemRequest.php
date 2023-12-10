@@ -15,7 +15,7 @@ class ItemRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:12',
-            'type' => 'required|string|in:CS2',
+            'type_id' => 'required|exists:types,id',
             'quality' => 'required|numeric',
             'rarity' => 'required|string',
             'price' => 'required|numeric',

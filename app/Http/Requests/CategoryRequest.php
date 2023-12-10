@@ -15,7 +15,7 @@ class CategoryRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:12',
-            'type' => 'required|string|in:CS2',
+            'type_id' => 'required|exists:types,id',
             'image' => 'sometimes|string',
 
             'cases' => 'array',
