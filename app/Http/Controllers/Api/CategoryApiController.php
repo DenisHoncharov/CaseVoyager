@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryCasesRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
@@ -17,6 +18,22 @@ class CategoryApiController extends Controller
         return CategoryResource::collection($categories);
     }
 
+    public function create(CategoryRequest $request)
+    {
+        $category = Category::create($request->validatedExcept(['cases']));
+
+        $category->cases()->syncWithPivotValues($request->cases, ['user_id' => auth()->user()->id]);
+
+        return response()->json($category);
+    }
+
+    public function categoryCases(CategoryCasesRequest $request, Category $category)
+    {
+        $category->cases()->syncWithPivotValues($request->cases, ['user_id' => auth()->user()->id]);
+
+        return response()->json($category->with('cases')->get());
+    }
+
     public function show(Request $request, Category $category)
     {
         return [
@@ -26,16 +43,11 @@ class CategoryApiController extends Controller
         ];
     }
 
-    public function create(CategoryRequest $request)
-    {
-        $category = Category::create($request->validated());
-
-        return response()->json($category);
-    }
-
     public function update(CategoryRequest $request, Category $category)
     {
-        $category = $category->update($request->validated());
+        $category->update($request->validatedExcept(['cases']));
+
+        $category->cases()->syncWithPivotValues($request->cases, ['user_id' => auth()->user()->id]);
 
         return response()->json($category);
     }
