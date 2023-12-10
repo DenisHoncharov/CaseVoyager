@@ -18,6 +18,6 @@ class Cases extends Model
 
     public function items()
     {
-        return $this->belongsToMany(Item::class);
+        return $this->belongsToMany(Item::class, 'case_item', 'cases_id', 'item_id');
     }
 }

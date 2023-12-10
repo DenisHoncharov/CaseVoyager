@@ -18,7 +18,11 @@ class CasesRequest extends FormRequest
             'type' => 'required|string|in:CS2',
             'price' => 'required|numeric',
             'image' => 'sometimes|string',
-            'description' => 'sometimes|string'
+            'description' => 'sometimes|string',
+
+            'items' => 'array',
+            'items.*.item_id' => 'exists:items,id',
+            'items.*.drop_percentage' => 'numeric|min:0|max:100'
         ];
     }
 }
