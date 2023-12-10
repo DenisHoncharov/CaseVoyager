@@ -9,5 +9,5 @@ class CaseItem extends Model
 {
     use HasFactory;
     
-    protected $table = 'cases_item';
+    protected $table = 'case_item';
 }

@@ -18,7 +18,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('categories')->name('api.categories.')->group(function () {
         Route::get('/', [CategoryApiController::class, 'index'])->name('all');
+        Route::get('/{category}', [CategoryApiController::class, 'show'])->name('show');
         Route::post('/create', [CategoryApiController::class, 'create'])->name('create');
+
+        Route::post('/cases/{category}', [CategoryApiController::class, 'categoryCases'])->name('cases');
+
         Route::put('/{category}', [CategoryApiController::class, 'update'])->name('update');
         Route::delete('/{category}', [CategoryApiController::class, 'delete'])->name('delete');
     });

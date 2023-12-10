@@ -13,7 +13,7 @@ class Cases extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'case_category', 'cases_id', 'category_id');
     }
 
     public function items()

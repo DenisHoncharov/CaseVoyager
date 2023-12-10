@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cases_category', function (Blueprint $table) {
+        Schema::create('case_category', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Cases::class, 'cases_id');
-            $table->foreignIdFor(\App\Models\Category::class, 'category_id');
+            $table->foreignIdFor(\App\Models\Cases::class, 'cases_id')->cascadeOnDelete();
+            $table->foreignIdFor(\App\Models\Category::class, 'category_id')->cascadeOnDelete();
             $table->foreignIdFor(\App\Models\User::class, 'user_id');
             $table->timestamps();
         });
