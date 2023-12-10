@@ -22,6 +22,7 @@ class CasesApiController extends Controller
         return [
             'id' => $case->id,
             'name' => $case->name,
+            'type' => $case->type,
             'image' => $case->image,
             'price' => $case->price,
             'description' => $case->description,

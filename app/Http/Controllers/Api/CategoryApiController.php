@@ -32,6 +32,7 @@ class CategoryApiController extends Controller
         return [
             'id' => $category->id,
             'name' => $category->name,
+            'type' => $category->type,
             'image' => $category->image
         ];
     }

@@ -12,7 +12,7 @@ class CasesSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Cases::count() === 0) {
+        if (Cases::count() === 0 && !app()->environment('production')) {
             Cases::factory()->create(['id' => 1, 'name' => 'Case 1']);
             Cases::factory()->create(['id' => 2, 'name' => 'Case 2']);
             Cases::factory()->create(['id' => 3, 'name' => 'Case 3']);

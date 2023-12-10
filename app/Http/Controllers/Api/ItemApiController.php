@@ -20,6 +20,7 @@ class ItemApiController extends Controller
         return [
             'id' => $item->id,
             'name' => $item->name,
+            'type' => $item->type,
             'image' => $item->image,
             'price' => $item->price,
             'quality' => $item->quality,

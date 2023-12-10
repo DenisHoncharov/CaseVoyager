@@ -16,4 +16,9 @@ class Item extends Model
     {
         return $this->belongsToMany(Cases::class, 'case_item', 'item_id', 'cases_id');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(Type::class);
+    }
 }

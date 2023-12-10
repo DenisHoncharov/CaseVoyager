@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CasesRequest extends FormRequest
+class TypeRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,14 +15,6 @@ class CasesRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:12',
-            'type_id' => 'required|exists:types,id',
-            'price' => 'required|numeric',
-            'image' => 'sometimes|string',
-            'description' => 'sometimes|string',
-
-            'items' => 'array',
-            'items.*.item_id' => 'exists:items,id',
-            'items.*.drop_percentage' => 'numeric|min:0|max:100'
         ];
     }
 }
