@@ -89,7 +89,7 @@ class CategoryApiControllerTest extends TestCase
     /**
      * @test
      */
-    public function user_can_attach_cases_with_category() : void
+    public function user_can_assign_cases_with_category() : void
     {
         $category = Category::factory()->create();
         $cases = Cases::factory(2)->create();
@@ -106,7 +106,7 @@ class CategoryApiControllerTest extends TestCase
     /**
      * @test
      */
-    public function user_can_untouch_cases_with_category() : void
+    public function user_can_unassign_cases_with_category() : void
     {
         $category = Category::factory()->create();
         $casesExisted = Cases::factory()->create();

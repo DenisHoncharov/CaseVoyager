@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Cases;
+use App\Models\Item;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -87,5 +88,126 @@ class CaseApiControllerTest extends TestCase
         $this->markTestSkipped('Make test for random');
         //TODO: make test for random
         //$this->actingAs(User::factory()->create())->
+    }
+
+    /** @test */
+    public function user_can_assign_existing_items_to_case(): void
+    {
+        $case = Cases::factory()->create();
+        $items = Item::factory(2)->create();
+
+        $itemsRequest = [
+            [
+                'item_id' => $items[0]->id,
+                'drop_percentage' => 60
+            ],
+            [
+                'item_id' => $items[1]->id,
+                'drop_percentage' => 40
+            ]
+        ];
+
+        $response = $this->actingAs(User::factory()->create())
+            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
+        $response->assertOk();
+
+        $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
+        $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[1]->id, 'drop_percentage' => 40]);
+    }
+    
+    /** @test */
+    public function user_can_unassign_existing_items_from_case(): void
+    {
+        $case = Cases::factory()->create();
+        $items = Item::factory(2)->create();
+        $user = User::factory()->create();
+        $case->items()->attach($items, ['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)
+            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => []]);
+        $response->assertOk();
+
+        $this->assertDatabaseMissing('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id]);
+        $this->assertDatabaseMissing('case_item', ['cases_id' => $case->id, 'item_id' => $items[1]->id]);
+    }
+    
+    /** @test */
+    public function user_can_sync_existing_items_in_case(): void
+    {
+        $case = Cases::factory()->create();
+        $itemExisted = Item::factory()->create();
+        $itemNew = Item::factory()->create();
+        $user = User::factory()->create();
+        
+        $case->items()->attach($itemExisted, ['user_id' => $user->id, 'drop_percentage' => 50]);
+
+        $itemsRequest = [
+            [
+                'item_id' => $itemNew->id,
+                'drop_percentage' => 60
+            ],
+        ];
+        
+        $response = $this->actingAs($user)
+            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
+        $response->assertOk();
+        
+        $this->assertDatabaseMissing('case_item', ['cases_id' => $case->id, 'item_id' => $itemExisted->id]);
+        $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $itemNew->id]);
+    }
+
+    /** @test */
+    public function user_can_assign_existing_items_when_create_case(): void
+    {
+        $case = Cases::factory()->raw();
+        $items = Item::factory(2)->create();
+
+        $itemsRequest = [
+            [
+                'item_id' => $items[0]->id,
+                'drop_percentage' => 60
+            ],
+            [
+                'item_id' => $items[1]->id,
+                'drop_percentage' => 40
+            ]
+        ];
+
+
+        $case['items'] = $itemsRequest;
+
+        $response = $this->actingAs(User::factory()->create())
+            ->post(route('api.cases.create'), $case);
+        $response->assertOk();
+
+        $this->assertDatabaseHas('case_item', ['cases_id' => $response->json('id'), 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
+        $this->assertDatabaseHas('case_item', ['cases_id' => $response->json('id'), 'item_id' => $items[1]->id, 'drop_percentage' => 40]);
+    }
+
+    /** @test */
+    public function user_can_assign_existing_items_when_update_case(): void
+    {
+        $case = Cases::factory()->create();
+        $items = Item::factory(2)->create();
+
+        $itemsRequest = [
+            [
+                'item_id' => $items[0]->id,
+                'drop_percentage' => 60
+            ],
+            [
+                'item_id' => $items[1]->id,
+                'drop_percentage' => 40
+            ]
+        ];
+
+        $case['items'] = $itemsRequest;
+
+        $response = $this->actingAs(User::factory()->create())
+            ->put(route('api.cases.update', ['case' => $case->id]), $case->toArray());
+        $response->assertOk();
+
+        $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
+        $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[1]->id, 'drop_percentage' => 40]);
     }
 }

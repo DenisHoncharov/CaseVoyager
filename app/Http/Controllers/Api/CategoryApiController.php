@@ -27,13 +27,6 @@ class CategoryApiController extends Controller
         return response()->json($category);
     }
 
-    public function categoryCases(CategoryCasesRequest $request, Category $category)
-    {
-        $category->cases()->syncWithPivotValues($request->cases, ['user_id' => auth()->user()->id]);
-
-        return response()->json($category->with('cases')->get());
-    }
-
     public function show(Request $request, Category $category)
     {
         return [
@@ -57,5 +50,12 @@ class CategoryApiController extends Controller
         $category->delete();
 
         return response()->json();
+    }
+
+    public function categoryCases(CategoryCasesRequest $request, Category $category)
+    {
+        $category->cases()->syncWithPivotValues($request->cases, ['user_id' => auth()->user()->id]);
+
+        return response()->json($category->with('cases')->get());
     }
 }

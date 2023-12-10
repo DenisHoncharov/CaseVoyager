@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CasesItemsRequest;
 use App\Http\Requests\CasesRequest;
 use App\Http\Resources\CasesResource;
 use App\Models\Cases;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class CasesApiController extends Controller
 {
@@ -31,14 +33,22 @@ class CasesApiController extends Controller
 
     public function create(CasesRequest $request)
     {
-        $case = Cases::create($request->validated());
+        $case = Cases::create($request->validatedExcept(['items']));
+
+        if ($request->has('items')) {
+            $this->syncItems($case, $request->validated(['items']));
+        }
 
         return response()->json($case);
     }
 
     public function update(CasesRequest $request, Cases $case)
     {
-        $case = $case->update($request->validated());
+        $case->update($request->validatedExcept(['items']));
+
+        if ($request->has('items')) {
+            $this->syncItems($case, $request->validated(['items']));
+        }
 
         return response()->json($case);
     }
@@ -72,5 +82,33 @@ class CasesApiController extends Controller
         }
 
         return $selectedItem;
+    }
+
+    public function caseItems(CasesItemsRequest $request, Cases $case)
+    {
+        $items = $request->validated('items');
+
+        $items = $this->addUserIdToRelationTable($items);
+
+        $case->items()->sync($items);
+
+        return response()->json($case->with('items')->get());
+    }
+
+    private function syncItems(Cases $case, array $items): void
+    {
+        $case->items()->sync($this->addUserIdToRelationTable($items));
+    }
+
+    private function addUserIdToRelationTable(array|null $items): Collection
+    {
+        if (is_null($items)) {
+            return collect([]);
+        }
+
+        return collect($items)->map(function ($item) {
+            $item['user_id'] = auth()->user()->id;
+            return $item;
+        });
     }
 }
