@@ -4,12 +4,14 @@ namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Type;
 use App\Models\User;
+use Auth0\Laravel\Entities\CredentialEntity;
+use Auth0\Laravel\Traits\Impersonate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TypeApiControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Impersonate;
 
     /** @test */
     public function user_can_get_all(): void
@@ -17,8 +19,8 @@ class TypeApiControllerTest extends TestCase
         $count = 2;
         Type::factory($count)->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.types.all'));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.types.all'));
         $response->assertOk();
 
         $response->assertJsonCount($count, 'data');
@@ -29,8 +31,8 @@ class TypeApiControllerTest extends TestCase
     {
         $type = Type::factory()->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.types.show', ['type' => $type->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.types.show', ['type' => $type->id]));
         $response->assertOk();
 
         $response->assertJsonFragment(['id' => $type->id]);
@@ -41,8 +43,8 @@ class TypeApiControllerTest extends TestCase
     {
         $type = Type::factory()->make();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.types.create'), $type->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->postJson(route('api.types.create'), $type->toArray());
         $response->assertOk();
 
         $this->assertDatabaseHas('types', ['name' => $type->name]);
@@ -58,8 +60,8 @@ class TypeApiControllerTest extends TestCase
         $typeRaw = $type->toArray();
         $typeRaw['name'] = $newName;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->put(route('api.types.update', ['type' => $type->id]), $typeRaw);
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->putJson(route('api.types.update', ['type' => $type->id]), $typeRaw);
         $response->assertOk();
 
         $this->assertDatabaseMissing('types', ['name' => $type->name]);
@@ -73,8 +75,8 @@ class TypeApiControllerTest extends TestCase
 
         $this->assertDatabaseHas('types', ['id' => $type->id]);
 
-        $response = $this->actingAs(User::factory()->create())
-            ->delete(route('api.types.delete', ['type' => $type->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->deleteJson(route('api.types.delete', ['type' => $type->id]));
 
         $response->assertOk();
 

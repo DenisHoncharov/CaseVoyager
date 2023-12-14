@@ -4,13 +4,15 @@ namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Cases;
 use App\Models\Item;
-use App\Models\User;
+use Auth0\Laravel\Entities\CredentialEntity;
+use Auth0\Laravel\Traits\Impersonate;
+use Auth0\Laravel\Users\ImposterUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CaseApiControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Impersonate;
 
     /** @test */
     public function user_can_get_all(): void
@@ -18,8 +20,8 @@ class CaseApiControllerTest extends TestCase
         $count = 2;
         Cases::factory($count)->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.cases.all'));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.cases.all'));
         $response->assertOk();
 
         $response->assertJsonCount($count, 'data');
@@ -30,8 +32,8 @@ class CaseApiControllerTest extends TestCase
     {
         $case = Cases::factory()->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.cases.show', ['case' => $case->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.cases.show', ['case' => $case->id]));
         $response->assertOk();
 
         $response->assertJsonFragment(['id' => $case->id]);
@@ -42,8 +44,8 @@ class CaseApiControllerTest extends TestCase
     {
         $case = Cases::factory()->make();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.cases.create'), $case->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->postJson(route('api.cases.create'), $case->toArray());
         $response->assertOk();
 
         $this->assertDatabaseHas('cases', ['name' => $case->name]);
@@ -59,8 +61,8 @@ class CaseApiControllerTest extends TestCase
         $caseRaw = $case->toArray();
         $caseRaw['name'] = $newName;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->put(route('api.cases.update', ['case' => $case->id]), $caseRaw);
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->putJson(route('api.cases.update', ['case' => $case->id]), $caseRaw);
         $response->assertOk();
 
         $this->assertDatabaseMissing('cases', ['name' => $case->name]);
@@ -74,8 +76,8 @@ class CaseApiControllerTest extends TestCase
 
         $this->assertDatabaseHas('cases', ['id' => $case->id]);
 
-        $response = $this->actingAs(User::factory()->create())
-            ->delete(route('api.cases.delete', ['case' => $case->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->deleteJson(route('api.cases.delete', ['case' => $case->id]));
 
         $response->assertOk();
 
@@ -87,7 +89,7 @@ class CaseApiControllerTest extends TestCase
     {
         $this->markTestSkipped('Make test for random');
         //TODO: make test for random
-        //$this->actingAs(User::factory()->create())->
+        //$this->impersonateToken(CredentialEntity::create(), 'auth0-api')->
     }
 
     /** @test */
@@ -107,8 +109,9 @@ class CaseApiControllerTest extends TestCase
             ]
         ];
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
         $response->assertOk();
 
         $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
@@ -120,11 +123,11 @@ class CaseApiControllerTest extends TestCase
     {
         $case = Cases::factory()->create();
         $items = Item::factory(2)->create();
-        $user = User::factory()->create();
-        $case->items()->attach($items, ['user_id' => $user->id]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $case->items()->attach($items, ['user_id' => $imposter->getAuthIdentifier()]);
 
-        $response = $this->actingAs($user)
-            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => []]);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.items', ['case' => $case->id]), ['items' => []]);
         $response->assertOk();
 
         $this->assertDatabaseMissing('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id]);
@@ -137,19 +140,19 @@ class CaseApiControllerTest extends TestCase
         $case = Cases::factory()->create();
         $itemExisted = Item::factory()->create();
         $itemNew = Item::factory()->create();
-        $user = User::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
         
-        $case->items()->attach($itemExisted, ['user_id' => $user->id, 'drop_percentage' => 50]);
+        $case->items()->attach($itemExisted, ['user_id' => $imposter->getAuthIdentifier(), 'drop_percentage' => 50]);
 
         $itemsRequest = [
             [
                 'item_id' => $itemNew->id,
-                'drop_percentage' => 60
+                'drop_percentage' => 100
             ],
         ];
         
-        $response = $this->actingAs($user)
-            ->post(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.items', ['case' => $case->id]), ['items' => $itemsRequest]);
         $response->assertOk();
         
         $this->assertDatabaseMissing('case_item', ['cases_id' => $case->id, 'item_id' => $itemExisted->id]);
@@ -160,7 +163,7 @@ class CaseApiControllerTest extends TestCase
     public function user_can_assign_existing_items_when_create_case(): void
     {
         $case = Cases::factory()->raw();
-        $items = Item::factory(2)->create();
+        $items = Item::factory(2)->create();;
 
         $itemsRequest = [
             [
@@ -176,8 +179,8 @@ class CaseApiControllerTest extends TestCase
 
         $case['items'] = $itemsRequest;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.cases.create'), $case);
+        $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
+            ->postJson(route('api.cases.create'), $case);
         $response->assertOk();
 
         $this->assertDatabaseHas('case_item', ['cases_id' => $response->json('id'), 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
@@ -203,11 +206,59 @@ class CaseApiControllerTest extends TestCase
 
         $case['items'] = $itemsRequest;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->put(route('api.cases.update', ['case' => $case->id]), $case->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
+            ->putJson(route('api.cases.update', ['case' => $case->id]), $case->toArray());
         $response->assertOk();
 
         $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[0]->id, 'drop_percentage' => 60]);
         $this->assertDatabaseHas('case_item', ['cases_id' => $case->id, 'item_id' => $items[1]->id, 'drop_percentage' => 40]);
+    }
+
+    /** @test */
+    public function sum_drop_percentage_can_not_be_more_100_percentage()
+    {
+        $case = Cases::factory()->create();
+        $items = Item::factory(2)->create();
+
+        $itemsRequest = [
+            [
+                'item_id' => $items[0]->id,
+                'drop_percentage' => 60
+            ],
+            [
+                'item_id' => $items[1]->id,
+                'drop_percentage' => 50
+            ]
+        ];
+
+        $case['items'] = $itemsRequest;
+
+        $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
+            ->putJson(route('api.cases.update', ['case' => $case->id]), $case->toArray());
+        $response->assertStatus(422);
+    }
+
+    /** @test */
+    public function sum_drop_percentage_can_not_be_less_100_percentage()
+    {
+        $case = Cases::factory()->create();
+        $items = Item::factory(2)->create();
+
+        $itemsRequest = [
+            [
+                'item_id' => $items[0]->id,
+                'drop_percentage' => 60
+            ],
+            [
+                'item_id' => $items[1]->id,
+                'drop_percentage' => 40
+            ]
+        ];
+
+        $case['items'] = $itemsRequest;
+
+        $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
+            ->putJson(route('api.cases.update', ['case' => $case->id]), $case->toArray());
+        $response->assertOk();
     }
 }

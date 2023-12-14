@@ -18,7 +18,7 @@ class ItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucwords(fake()->unique()->text(12)),
+            'name' => ucwords(fake()->unique()->text(30)),
             'type_id' => Type::factory()->create(),
             'price' => fake()->randomFloat(2, 0,100),
             'quality' => fake()->randomFloat(2, 0,100),

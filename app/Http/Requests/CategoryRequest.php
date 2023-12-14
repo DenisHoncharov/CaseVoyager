@@ -14,12 +14,12 @@ class CategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:12',
+            'name' => 'required|string|max:30',
             'type_id' => 'required|exists:types,id',
             'image' => 'sometimes|string',
 
             'cases' => 'array',
-            'cases.*' => 'exists:cases,id'
+            'cases.*' => 'numeric|exists:cases,id'
         ];
     }
 }

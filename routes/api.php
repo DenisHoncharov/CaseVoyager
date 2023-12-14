@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CasesApiController;
 use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\ItemApiController;
 use App\Http\Controllers\Api\TypeApiController;
+use App\Http\Controllers\Api\UserApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::prefix('categories')->name('api.categories.')->group(function () {
         Route::post('/cases/{category}', [CategoryApiController::class, 'categoryCases'])->name('cases');
 
@@ -52,5 +53,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [TypeApiController::class, 'create'])->name('create');
         Route::put('/{type}', [TypeApiController::class, 'update'])->name('update');
         Route::delete('/{type}', [TypeApiController::class, 'delete'])->name('delete');
+    });
+
+    Route::prefix('auth')->name('api.auth.')->group(function () {
+        Route::get('/me', [UserApiController::class, 'getCurrentUser'])->name('me');
     });
 });

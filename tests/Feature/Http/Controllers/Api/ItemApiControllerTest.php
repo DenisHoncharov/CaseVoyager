@@ -4,12 +4,14 @@ namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Item;
 use App\Models\User;
+use Auth0\Laravel\Entities\CredentialEntity;
+use Auth0\Laravel\Traits\Impersonate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ItemApiControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Impersonate;
 
     /** @test */
     public function user_can_get_all(): void
@@ -17,8 +19,8 @@ class ItemApiControllerTest extends TestCase
         $count = 2;
         Item::factory($count)->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.items.all'));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.items.all'));
         $response->assertOk();
 
         $response->assertJsonCount($count, 'data');
@@ -29,8 +31,8 @@ class ItemApiControllerTest extends TestCase
     {
         $item = Item::factory()->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.items.show', ['item' => $item->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.items.show', ['item' => $item->id]));
         $response->assertOk();
 
         $response->assertJsonFragment(['id' => $item->id]);
@@ -41,8 +43,8 @@ class ItemApiControllerTest extends TestCase
     {
         $item = Item::factory()->make();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.items.create'), $item->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->postJson(route('api.items.create'), $item->toArray());
         $response->assertOk();
 
         $this->assertDatabaseHas('items', ['name' => $item->name]);
@@ -58,8 +60,8 @@ class ItemApiControllerTest extends TestCase
         $itemRaw = $item->toArray();
         $itemRaw['name'] = $newName;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->put(route('api.items.update', ['item' => $item->id]), $itemRaw);
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->putJson(route('api.items.update', ['item' => $item->id]), $itemRaw);
         $response->assertOk();
 
         $this->assertDatabaseMissing('items', ['name' => $item->name]);
@@ -73,8 +75,8 @@ class ItemApiControllerTest extends TestCase
 
         $this->assertDatabaseHas('items', ['id' => $item->id]);
 
-        $response = $this->actingAs(User::factory()->create())
-            ->delete(route('api.items.delete', ['item' => $item->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->deleteJson(route('api.items.delete', ['item' => $item->id]));
 
         $response->assertOk();
 
