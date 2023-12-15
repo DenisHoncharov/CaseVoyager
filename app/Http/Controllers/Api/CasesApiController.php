@@ -107,8 +107,10 @@ class CasesApiController extends Controller
             return collect([]);
         }
 
-        return collect($items)->map(function ($item) {
-            $item['user_id'] = auth()->user()->id;
+        $user_id = app()->make('getUserFromDBUsingAuth0')?->id;
+
+        return collect($items)->map(function ($item) use ($user_id){
+            $item['user_id'] = $user_id;
             return $item;
         });
     }

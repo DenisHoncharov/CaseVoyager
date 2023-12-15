@@ -16,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// TODO: remove after testing tmp route not used in the app
+Route::get('/me', function () {
+    echo auth()->id();
+    dd(auth()->user());
+});

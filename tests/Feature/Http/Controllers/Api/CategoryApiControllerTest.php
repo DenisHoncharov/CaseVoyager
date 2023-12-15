@@ -5,12 +5,15 @@ namespace Tests\Feature\Http\Controllers\Api;
 use App\Models\Cases;
 use App\Models\Category;
 use App\Models\User;
+use Auth0\Laravel\Entities\CredentialEntity;
+use Auth0\Laravel\Traits\Impersonate;
+use Auth0\Laravel\Users\ImposterUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CategoryApiControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Impersonate;
 
     /** @test */
     public function user_can_get_all(): void
@@ -18,8 +21,8 @@ class CategoryApiControllerTest extends TestCase
         $count = 2;
         Category::factory($count)->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.categories.all'));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.categories.all'));
         $response->assertOk();
 
         $response->assertJsonCount($count, 'data');
@@ -30,8 +33,8 @@ class CategoryApiControllerTest extends TestCase
     {
         $category = Category::factory()->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->get(route('api.categories.show', ['category' => $category->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->getJson(route('api.categories.show', ['category' => $category->id]));
         $response->assertOk();
 
         $response->assertJson([
@@ -46,8 +49,8 @@ class CategoryApiControllerTest extends TestCase
     {
         $category = Category::factory()->make();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.categories.create'), $category->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->postJson(route('api.categories.create'), $category->toArray());
         $response->assertOk();
 
         $this->assertDatabaseHas('categories', ['name' => $category->name]);
@@ -63,8 +66,8 @@ class CategoryApiControllerTest extends TestCase
         $categoryRaw = $category->toArray();
         $categoryRaw['name'] = $newName;
 
-        $response = $this->actingAs(User::factory()->create())
-            ->put(route('api.categories.update', ['category' => $category->id]), $categoryRaw);
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->putJson(route('api.categories.update', ['category' => $category->id]), $categoryRaw);
         $response->assertOk();
 
         $this->assertDatabaseMissing('categories', ['name' => $category->name]);
@@ -78,8 +81,8 @@ class CategoryApiControllerTest extends TestCase
 
         $this->assertDatabaseHas('categories', ['id' => $category->id]);
 
-        $response = $this->actingAs(User::factory()->create())
-            ->delete(route('api.categories.delete', ['category' => $category->id]));
+        $response = $this->impersonateToken(CredentialEntity::create(), 'auth0-api')
+            ->deleteJson(route('api.categories.delete', ['category' => $category->id]));
 
         $response->assertOk();
 
@@ -94,8 +97,8 @@ class CategoryApiControllerTest extends TestCase
         $category = Category::factory()->create();
         $cases = Cases::factory(2)->create();
 
-        $response = $this->actingAs(User::factory()->create())
-            ->post(route('api.categories.cases', ['category' => $category->id]), ['cases' => $cases->pluck('id')->toArray()]);
+        $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
+            ->postJson(route('api.categories.cases', ['category' => $category->id]), ['cases' => $cases->pluck('id')->toArray()]);
 
         $response->assertOk();
 
@@ -110,12 +113,12 @@ class CategoryApiControllerTest extends TestCase
     {
         $category = Category::factory()->create();
         $casesExisted = Cases::factory()->create();
-        $user = User::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
 
-        $category->cases()->attach($casesExisted->id, ['user_id' => $user->id]);
+        $category->cases()->attach($casesExisted->id, ['user_id' => $imposter->getAuthIdentifier()]);
 
-        $response = $this->actingAs($user)
-            ->post(route('api.categories.cases', ['category' => $category->id]), ['cases' => []]);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.categories.cases', ['category' => $category->id]), ['cases' => []]);
 
         $response->assertOk();
 
@@ -130,12 +133,12 @@ class CategoryApiControllerTest extends TestCase
         $category = Category::factory()->create();
         $casesExisted = Cases::factory(2)->create();
         $casesNew = Cases::factory(2)->create();
-        $user = User::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
 
-        $category->cases()->attach($casesExisted->pluck('id'), ['user_id' => $user->id]);
+        $category->cases()->attach($casesExisted->pluck('id'), ['user_id' => $imposter->getAuthIdentifier()]);
 
-        $response = $this->actingAs($user)
-            ->post(route('api.categories.cases', ['category' => $category->id]), ['cases' => $casesNew->pluck('id')->toArray()]);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.categories.cases', ['category' => $category->id]), ['cases' => $casesNew->pluck('id')->toArray()]);
 
         $response->assertOk();
 
@@ -153,12 +156,12 @@ class CategoryApiControllerTest extends TestCase
     {
         $category = Category::factory()->raw();
         $cases = Cases::factory(2)->create();
-        $user = User::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
 
         $category['cases'] = $cases->pluck('id')->toArray();
 
-        $response = $this->actingAs($user)
-            ->post(route('api.categories.create'), $category);
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.categories.create'), $category);
 
         $response->assertOk();
 
@@ -173,12 +176,12 @@ class CategoryApiControllerTest extends TestCase
     {
         $category = Category::factory()->create();
         $cases = Cases::factory(2)->create();
-        $user = User::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
 
         $category['cases'] = $cases->pluck('id')->toArray();
 
-        $response = $this->actingAs($user)
-            ->put(route('api.categories.update', ['category' => $category->id]), $category->toArray());
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->putJson(route('api.categories.update', ['category' => $category->id]), $category->toArray());
 
         $response->assertOk();
 

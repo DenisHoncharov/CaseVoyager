@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\MaximumDropPercentageRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CasesRequest extends FormRequest
@@ -14,13 +15,13 @@ class CasesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:12',
+            'name' => 'required|string|max:30',
             'type_id' => 'required|exists:types,id',
             'price' => 'required|numeric',
             'image' => 'sometimes|string',
             'description' => 'sometimes|string',
 
-            'items' => 'array',
+            'items' => ['array', new MaximumDropPercentageRule],
             'items.*.item_id' => 'exists:items,id',
             'items.*.drop_percentage' => 'numeric|min:0|max:100'
         ];
