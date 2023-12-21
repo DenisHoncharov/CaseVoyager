@@ -21,4 +21,9 @@ class Item extends Model
     {
         return $this->belongsTo(Type::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }
