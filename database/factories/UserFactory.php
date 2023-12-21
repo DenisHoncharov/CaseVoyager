@@ -23,6 +23,8 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'telegram_id' => Str::random(10),
             'email_verified_at' => now(),
+            'steam_profile_url' => fake()->url(),
+            'steam_trade_link' => fake()->url(),
         ];
     }
 
