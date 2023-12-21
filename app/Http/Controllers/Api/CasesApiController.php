@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\CaseOpenedEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CasesItemsRequest;
 use App\Http\Requests\CasesRequest;
@@ -82,6 +83,10 @@ class CasesApiController extends Controller
             }
         }
 
+        if ($selectedItem !== null) {
+            CaseOpenedEvent::dispatch($case, $selectedItem);
+        }
+
         return $selectedItem;
     }
 
@@ -104,7 +109,7 @@ class CasesApiController extends Controller
     private function addUserIdToRelationTable(array|null $items): Collection
     {
         if (is_null($items)) {
-            return collect([]);
+            return collect();
         }
 
         $user_id = app()->make('getUserFromDBUsingAuth0')?->id;
