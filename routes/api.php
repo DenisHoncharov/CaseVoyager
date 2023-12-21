@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryApiController;
 use App\Http\Controllers\Api\ItemApiController;
 use App\Http\Controllers\Api\TypeApiController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\UserInventoryApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,6 +54,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/create', [TypeApiController::class, 'create'])->name('create');
         Route::put('/{type}', [TypeApiController::class, 'update'])->name('update');
         Route::delete('/{type}', [TypeApiController::class, 'delete'])->name('delete');
+    });
+
+    Route::prefix('inventory')->name('api.inventory.')->group(function () {
+        Route::get('/', [UserInventoryApiController::class, 'index'])->name('all');
+        Route::post('/add', [UserInventoryApiController::class, 'addToInventory'])->name('add');
+        Route::delete('/delete', [UserInventoryApiController::class, 'removeFromInventory'])->name('delete');
     });
 
     Route::prefix('auth')->name('api.auth.')->group(function () {

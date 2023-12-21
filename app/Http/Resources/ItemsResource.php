@@ -21,7 +21,9 @@ class ItemsResource extends JsonResource
             'type' => $this->type,
             'price' => $this->price,
             'quality' => $this->quality,
-            'rarity' => $this->rarity
+            'rarity' => $this->rarity,
+            'source_marketplace_link' => $this->source_marketplace_link,
+            'source_preview_link' => $this->source_preview_link,
         ];
     }
 }
