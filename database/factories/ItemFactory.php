@@ -24,8 +24,8 @@ class ItemFactory extends Factory
             'quality' => fake()->randomFloat(2, 0,100),
             'rarity' => fake()->text(10),
             'image' => fake()->imageUrl(),
-            'steam_preview_link' => fake()->url(),
-            'steam_market_place_link' => fake()->url(),
+            'source_preview_link' => fake()->url(),
+            'source_marketplace_link' => fake()->url(),
         ];
     }
 }
