@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\CaseOpenedEvent;
+use App\Listeners\CaseOpenedListener;
 use App\Listeners\SuccessfulAuth0LoginListener;
 use Auth0\Laravel\Events\TokenVerificationSucceeded;
 use Illuminate\Auth\Events\Registered;
@@ -19,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        CaseOpenedEvent::class => [
+            CaseOpenedListener::class,
         ],
     ];
 

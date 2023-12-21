@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Http\Controllers\Api;
 
+use App\Events\CaseOpenedEvent;
 use App\Models\Cases;
 use App\Models\Item;
+use App\Models\User;
 use Auth0\Laravel\Entities\CredentialEntity;
 use Auth0\Laravel\Traits\Impersonate;
 use Auth0\Laravel\Users\ImposterUser;
@@ -85,11 +87,20 @@ class CaseApiControllerTest extends TestCase
     }
 
     /** @test */
-    public function user_can_open_case(): void
+    public function user_can_open_case_and_result_will_be_logged(): void
     {
-        $this->markTestSkipped('Make test for random');
-        //TODO: make test for random
-        //$this->impersonateToken(CredentialEntity::create(), 'auth0-api')->
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+        $case = Cases::factory()->create();
+        $item = Item::factory()->create();
+
+        $case->items()->attach($item, ['drop_percentage' => 100, 'user_id' => $user->id]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->getJson(route('api.cases.open', ['case' => $case->id]));
+        $response->assertOk();
+
+        $this->assertDatabaseHas('open_case_results', ['opened_case_id' => $case->id, 'user_id' => $user->id]);
     }
 
     /** @test */
