@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::table('items', function (Blueprint $table) {
             if (
-                !Schema::hasColumn('items', 'steam_market_place_link')
-                && !Schema::hasColumn('items', 'steam_preview_link')
+                !Schema::hasColumn('items', 'source_marketplace_link')
+                && !Schema::hasColumn('items', 'source_preview_link')
             ) {
-                $table->string('steam_preview_link')->nullable()->after('image');
-                $table->string('steam_market_place_link')->nullable()->after('image');
+                $table->string('source_preview_link')->nullable()->after('image');
+                $table->string('source_marketplace_link')->nullable()->after('image');
             }
         });
     }
@@ -29,10 +29,10 @@ return new class extends Migration
     {
         Schema::table('items', function (Blueprint $table) {
             if (
-                Schema::hasColumn('items', 'steam_market_place_link')
-                && Schema::hasColumn('items', 'steam_preview_link')
+                Schema::hasColumn('items', 'source_marketplace_link')
+                && Schema::hasColumn('items', 'source_preview_link')
             ) {
-                $table->dropColumn(['steam_market_place_link', 'steam_preview_link']);
+                $table->dropColumn(['source_marketplace_link', 'source_preview_link']);
             }
         });
     }
