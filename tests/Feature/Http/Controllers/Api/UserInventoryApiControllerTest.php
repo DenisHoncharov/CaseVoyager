@@ -65,6 +65,73 @@ class UserInventoryApiControllerTest extends TestCase
     }
 
     /** @test */
+    public function user_can_not_add_item_to_inventory_from_the_same_case_multiple_times()
+    {
+        $item = Item::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+
+        $openCaseResult = DB::table('open_case_results')->insertGetId([
+            'opened_case_id' => Cases::factory()->create()->id,
+            'item_id' => $item->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.add'), [
+                'items' => [
+                    [
+                        'openCaseResultId' => $openCaseResult,
+                        'item_id' => $item->id
+                    ],
+                    [
+                        'openCaseResultId' => $openCaseResult,
+                        'item_id' => $item->id
+                    ]
+                ]
+            ]);
+        $response->assertStatus(422);
+    }
+
+    /** @test */
+    public function user_can_not_add_item_to_inventory_from_the_same_case_if_item_already_received()
+    {
+        $item = Item::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+
+        $openCaseResult = DB::table('open_case_results')->insertGetId([
+            'opened_case_id' => Cases::factory()->create()->id,
+            'item_id' => $item->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.add'), [
+                'items' => [
+                    [
+                        'openCaseResultId' => $openCaseResult,
+                        'item_id' => $item->id
+                    ]
+                ]
+            ]);
+        $response->assertStatus(200);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.add'), [
+                'items' => [
+                    [
+                        'openCaseResultId' => $openCaseResult,
+                        'item_id' => $item->id
+                    ]
+                ]
+            ]);
+        $response->assertStatus(422);
+
+        $this->assertDatabaseCount('item_user', 1);
+    }
+
+    /** @test */
     public function user_can_add_multiple_items_to_inventory(): void
     {
         $items = Item::factory(2)->create();

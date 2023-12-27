@@ -17,6 +17,7 @@ return new class extends Migration
                 $table->foreignIdFor(\App\Models\User::class);
                 $table->foreignIdFor(\App\Models\Cases::class, 'opened_case_id');
                 $table->foreignIdFor(\App\Models\Item::class);
+                $table->boolean('is_received')->default(false);
                 $table->timestamps();
             });
         }

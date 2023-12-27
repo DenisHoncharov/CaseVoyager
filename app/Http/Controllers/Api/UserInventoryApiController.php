@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ReceiveItemFromCaseEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddItemToInventoryRequest;
 use App\Http\Requests\RemoveItemFromInventoryRequest;
@@ -20,7 +21,11 @@ class UserInventoryApiController extends Controller
     {
         $user = app()->make('getUserFromDBUsingAuth0');
 
-        $user->items()->attach(collect($request->validated('items'))->pluck('item_id'));
+        $itemsFromOpenedCases = collect($request->validated('items'));
+
+        $user->items()->attach($itemsFromOpenedCases->pluck('item_id'));
+
+        ReceiveItemFromCaseEvent::dispatch($itemsFromOpenedCases->pluck('openCaseResultId')->toArray());
 
         return ItemsResource::collection($user->items);
     }
