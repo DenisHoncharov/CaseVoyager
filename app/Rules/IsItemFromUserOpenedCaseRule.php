@@ -18,10 +18,20 @@ class IsItemFromUserOpenedCaseRule implements ValidationRule
         $user = app()->make('getUserFromDBUsingAuth0');
         $items = collect($value);
 
-        $openCaseResults = OpenCaseResult::whereIn('id', $items->pluck('openCaseResultId'))->get();
+        $openCaseResults = OpenCaseResult::whereIn('id', $items->pluck('openCaseResultId'))
+            ->where('is_received', false)
+            ->get();
+
+        if ($openCaseResults->isEmpty()) {
+            $fail('The open case result does not exist.');
+        }
 
         $openCaseResults->each(function ($openCaseResult) use ($items, $user, $fail) {
             $item = $items->firstWhere('openCaseResultId', $openCaseResult->id);
+
+            if (is_null($item)) {
+                $fail('The open case result does not exist.');
+            }
 
             if ($item['item_id'] !== $openCaseResult->item_id) {
                 $fail('The item does not belong to the open case result.');

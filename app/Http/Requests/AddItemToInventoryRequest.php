@@ -16,7 +16,7 @@ class AddItemToInventoryRequest extends FormRequest
     {
         return [
             'items' => ['required', 'array', new IsItemFromUserOpenedCaseRule],
-            'items.*.openCaseResultId' => 'required|integer|exists:open_case_results,id',
+            'items.*.openCaseResultId' => 'required|integer|distinct|exists:open_case_results,id',
             'items.*.item_id' => 'required|integer|exists:items,id',
         ];
     }

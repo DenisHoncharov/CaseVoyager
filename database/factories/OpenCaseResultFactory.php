@@ -23,6 +23,7 @@ class OpenCaseResultFactory extends Factory
             'user_id' => User::factory()->create(),
             'opened_case_id' => Cases::factory()->create(),
             'item_id' => Item::factory()->create(),
+            'is_received' => false,
         ];
     }
 }

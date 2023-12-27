@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\CaseOpenedEvent;
+use App\Events\ReceiveItemFromCaseEvent;
 use App\Listeners\CaseOpenedListener;
+use App\Listeners\ReceiveItemFromCaseListener;
 use App\Listeners\SuccessfulAuth0LoginListener;
 use Auth0\Laravel\Events\TokenVerificationSucceeded;
 use Illuminate\Auth\Events\Registered;
@@ -24,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CaseOpenedEvent::class => [
             CaseOpenedListener::class,
+        ],
+        ReceiveItemFromCaseEvent::class => [
+            ReceiveItemFromCaseListener::class,
         ],
     ];
 
