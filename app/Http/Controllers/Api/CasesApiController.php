@@ -69,6 +69,12 @@ class CasesApiController extends Controller
 
     public function openCase(Cases $case)
     {
+        if (app()->make('getUserFromDBUsingAuth0')?->balance < $case->price) {
+            return response()->json([
+                'message' => 'You don\'t have enough money on your balance to open this case'
+            ], 422);
+        }
+
         $items = $case->items()
             ->wherePivot('drop_percentage', '>',  0)
             ->withPivot('drop_percentage')

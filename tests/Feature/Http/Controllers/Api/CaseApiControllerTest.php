@@ -90,9 +90,15 @@ class CaseApiControllerTest extends TestCase
     /** @test */
     public function user_can_open_case_and_result_will_be_logged(): void
     {
+        $casePrice = 100;
         $imposter = new ImposterUser(['sub' => 'auth0|example']);
-        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
-        $case = Cases::factory()->create();
+        $user = User::factory()->create([
+            'balance' => $casePrice,
+            'auth0_id' => $imposter->getAuthIdentifier()
+        ]);
+        $case = Cases::factory()->create([
+            'price' => $casePrice
+        ]);
         $item = Item::factory()->create();
 
         $case->items()->attach($item, ['drop_percentage' => 100, 'user_id' => $user->id]);
@@ -102,6 +108,29 @@ class CaseApiControllerTest extends TestCase
         $response->assertOk();
 
         $this->assertDatabaseHas('open_case_results', ['opened_case_id' => $case->id, 'user_id' => $user->id]);
+    }
+    
+    /** @test */
+    public function user_can_not_open_case_if_balance_not_enough()
+    {
+        $casePrice = 100;
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'balance' => $casePrice - 0.01,
+            'auth0_id' => $imposter->getAuthIdentifier()
+        ]);
+        $case = Cases::factory()->create([
+            'price' => $casePrice
+        ]);
+        $item = Item::factory()->create();
+
+        $case->items()->attach($item, ['drop_percentage' => 100, 'user_id' => $user->id]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->getJson(route('api.cases.open', ['case' => $case->id]));
+        $response->assertStatus(422);
+
+        $this->assertDatabaseMissing('open_case_results', ['opened_case_id' => $case->id, 'user_id' => $user->id]);
     }
 
     /** @test */
