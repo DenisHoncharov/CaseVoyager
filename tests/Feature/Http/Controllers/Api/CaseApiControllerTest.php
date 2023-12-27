@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Controllers\Api;
 use App\Events\CaseOpenedEvent;
 use App\Models\Cases;
 use App\Models\Item;
+use App\Models\OpenCaseResult;
 use App\Models\User;
 use Auth0\Laravel\Entities\CredentialEntity;
 use Auth0\Laravel\Traits\Impersonate;
@@ -271,5 +272,92 @@ class CaseApiControllerTest extends TestCase
         $response = $this->impersonateToken(CredentialEntity::create(new ImposterUser(['sub' => 'auth0|example'])), 'auth0-api')
             ->putJson(route('api.cases.update', ['case' => $case->id]), $case->toArray());
         $response->assertOk();
+    }
+
+    /** @test */
+    public function user_can_exchange_opened_case_item_to_balance()
+    {
+        $itemPrice = 100;
+        $item = Item::factory()->create([
+            'price' => $itemPrice,
+        ]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'balance' => 0,
+            'auth0_id' => $imposter->getAuthIdentifier(),
+        ]);
+
+        $openCaseResult = OpenCaseResult::factory()->create([
+            'item_id' => $item->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.exchangeOpenedItems'), [
+                'openedCasesIds' => [$openCaseResult->id]
+            ]);
+        $response->assertOk();
+
+        $this->assertDatabaseHas('open_case_results', ['id' => $openCaseResult->id, 'is_received' => true]);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => $itemPrice]);
+    }
+
+    /** @test */
+    public function user_can_exchange_opened_cases_items_to_balance()
+    {
+        $itemPrice = 100;
+        $items = Item::factory(2)->create([
+            'price' => $itemPrice,
+        ]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'balance' => 0,
+            'auth0_id' => $imposter->getAuthIdentifier(),
+        ]);
+
+        $openCaseResultOne = OpenCaseResult::factory()->create([
+            'item_id' => $items[0]->id,
+            'user_id' => $user->id,
+        ]);
+
+        $openCaseResultTwo = OpenCaseResult::factory()->create([
+            'item_id' => $items[1]->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.exchangeOpenedItems'), [
+                'openedCasesIds' => [$openCaseResultOne->id, $openCaseResultTwo->id]
+            ]);
+        $response->assertOk();
+
+        $this->assertDatabaseHas('open_case_results', ['id' => $openCaseResultOne->id, 'is_received' => true]);
+        $this->assertDatabaseHas('open_case_results', ['id' => $openCaseResultTwo->id, 'is_received' => true]);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => $itemPrice * 2]);
+    }
+
+    /** @test */
+    public function user_can_not_exchange_items_from_cases_opened_not_by_himself()
+    {
+        $item = Item::factory()->create();
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'balance' => 0,
+            'auth0_id' => $imposter->getAuthIdentifier(),
+        ]);
+
+        $openCaseResult = OpenCaseResult::factory()->create([
+            'item_id' => $item->id,
+            'user_id' => User::factory()->create()->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.cases.exchangeOpenedItems'), [
+                'openedCasesIds' => [$openCaseResult->id]
+            ]);
+        $response->assertStatus(422);
+
+        $this->assertDatabaseHas('open_case_results', ['id' => $openCaseResult->id, 'is_received' => false]);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => 0]);
     }
 }

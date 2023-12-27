@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\CaseOpenedEvent;
+use App\Events\ReceiveItemFromCaseEvent;
+use App\Events\UpdateUserBalanceEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CasesItemsRequest;
 use App\Http\Requests\CasesRequest;
+use App\Http\Requests\ExchangeOpenedItemsRequest;
 use App\Http\Resources\CasesResource;
 use App\Models\Cases;
+use App\Models\Item;
+use App\Models\OpenCaseResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -99,6 +104,19 @@ class CasesApiController extends Controller
         $case->items()->sync($items);
 
         return response()->json($case->with('items')->get());
+    }
+
+    public function exchangeOpenedItems(ExchangeOpenedItemsRequest $request)
+    {
+        $user = app()->make('getUserFromDBUsingAuth0');
+
+        $openedCasesIds = collect($request->validated('openedCasesIds'));
+
+        $openedCases = OpenCaseResult::whereIn('id', $openedCasesIds)->get();
+        $itemsCost = Item::whereIn('id', $openedCases->pluck('item_id'))->sum('price');
+
+        UpdateUserBalanceEvent::dispatch($user, $itemsCost);
+        ReceiveItemFromCaseEvent::dispatch($openedCases->pluck('id')->toArray());
     }
 
     private function syncItems(Cases $case, array $items): void

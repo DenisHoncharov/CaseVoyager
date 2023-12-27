@@ -3,7 +3,6 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Item;
-use App\Models\User;
 use Auth0\Laravel\Entities\CredentialEntity;
 use Auth0\Laravel\Traits\Impersonate;
 use Illuminate\Foundation\Testing\RefreshDatabase;

@@ -280,4 +280,81 @@ class UserInventoryApiControllerTest extends TestCase
         $this->assertDatabaseMissing('item_user', ['id' => $inventoryItemIdTwo]);
         $this->assertDatabaseCount('item_user', 1);
     }
+
+    /** @test */
+    public function user_can_exchange_inventory_item_to_balance()
+    {
+        $itemCost = 100;
+        $item = Item::factory()->create(['price' => $itemCost]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'auth0_id' => $imposter->getAuthIdentifier(),
+            'balance' => 0
+        ]);
+
+        $inventoryItemId = DB::table('item_user')->insertGetId([
+            'item_id' => $item->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.exchange'), [
+                'items' => [$inventoryItemId]
+            ]);
+        $response->assertOk();
+
+        $this->assertDatabaseMissing('item_user', ['id' => $inventoryItemId]);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => $itemCost]);
+    }
+
+    /** @test */
+    public function user_can_not_exchange_inventory_item_to_balance_if_item_not_in_inventory()
+    {
+        $inventoryItemId = 1;
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'auth0_id' => $imposter->getAuthIdentifier(),
+            'balance' => 0
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.exchange'), [
+                'items' => [$inventoryItemId]
+            ]);
+        $response->assertStatus(422);
+
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => 0]);
+    }
+
+    /** @test */
+    public function user_can_exchange_multiple_items_from_inventory_to_balance()
+    {
+        $itemCost = 100;
+        $items = Item::factory(2)->create(['price' => $itemCost]);
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create([
+            'auth0_id' => $imposter->getAuthIdentifier(),
+            'balance' => 0
+        ]);
+
+        $inventoryItemIdOne = DB::table('item_user')->insertGetId([
+            'item_id' => $items[0]->id,
+            'user_id' => $user->id,
+        ]);
+
+        $inventoryItemIdTwo = DB::table('item_user')->insertGetId([
+            'item_id' => $items[1]->id,
+            'user_id' => $user->id,
+        ]);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->postJson(route('api.inventory.exchange'), [
+                'items' => [$inventoryItemIdOne, $inventoryItemIdTwo]
+            ]);
+        $response->assertOk();
+
+        $this->assertDatabaseMissing('item_user', ['id' => $inventoryItemIdOne]);
+        $this->assertDatabaseMissing('item_user', ['id' => $inventoryItemIdTwo]);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => $itemCost * 2]);
+    }
 }
