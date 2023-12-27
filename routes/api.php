@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('cases')->name('api.cases.')->group(function () {
         Route::get('/open/{case}', [CasesApiController::class, 'openCase'])->name('open');
         Route::post('/items/{case}', [CasesApiController::class, 'caseItems'])->name('items');
+        Route::post('/open/exchangeItems', [CasesApiController::class, 'exchangeOpenedItems'])->name('exchangeOpenedItems');
 
         Route::get('/', [CasesApiController::class, 'index'])->name('all');
         Route::get('/{case}', [CasesApiController::class, 'show'])->name('show');
@@ -60,6 +61,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [UserInventoryApiController::class, 'index'])->name('all');
         Route::post('/add', [UserInventoryApiController::class, 'addToInventory'])->name('add');
         Route::delete('/delete', [UserInventoryApiController::class, 'removeFromInventory'])->name('delete');
+
+        Route::post('/exchange', [UserInventoryApiController::class, 'exchangeItems'])->name('exchange');
     });
 
     Route::prefix('auth')->name('api.auth.')->group(function () {

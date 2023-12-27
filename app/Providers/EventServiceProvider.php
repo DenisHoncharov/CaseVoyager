@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Events\CaseOpenedEvent;
 use App\Events\ReceiveItemFromCaseEvent;
+use App\Events\UpdateUserBalanceEvent;
 use App\Listeners\CaseOpenedListener;
 use App\Listeners\ReceiveItemFromCaseListener;
 use App\Listeners\SuccessfulAuth0LoginListener;
+use App\Listeners\UpdateUserBalanceListener;
 use Auth0\Laravel\Events\TokenVerificationSucceeded;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -29,6 +31,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ReceiveItemFromCaseEvent::class => [
             ReceiveItemFromCaseListener::class,
+        ],
+        UpdateUserBalanceEvent::class => [
+            UpdateUserBalanceListener::class,
         ],
     ];
 
