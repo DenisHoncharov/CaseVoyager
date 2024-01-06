@@ -23,4 +23,15 @@ class UserTest extends TestCase
 
         $this->assertCount(2, $user->fresh()->items);
     }
+
+    /** @test */
+    public function a_user_can_have_requested_items()
+    {
+        $user = User::factory()->create();
+        $user->requestedItems()->create([
+            'inventory_ids' => json_encode([1, 2, 3])
+        ]);
+
+        $this->assertCount(1, $user->fresh()->requestedItems);
+    }
 }
