@@ -221,7 +221,7 @@ class RequestedItemsApiControllerTest extends TestCase
         ]);
     }
 
-    private static function statusesForRemoveItemsRequest(): array
+    public static function statusesForRemoveItemsRequest(): array
     {
         $expectedArray = [];
 
