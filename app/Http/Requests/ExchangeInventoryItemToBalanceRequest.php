@@ -4,6 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="ExchangeInventoryItemToBalanceRequest",
+ *     description="ExchangeInventoryItemToBalance request body data",
+ *     required={"items"},
+ *     @OA\Property (property="items", type="array", @OA\Items(type="integer", example="1")),
+ * )
+ */
 class ExchangeInventoryItemToBalanceRequest extends FormRequest
 {
     /**

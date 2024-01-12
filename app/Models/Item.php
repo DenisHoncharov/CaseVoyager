@@ -5,6 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @OA\Schema(
+ *     title="Item",
+ *     description="Item model",
+ *     @OA\Property (property="id", type="integer", readOnly="true", example="1"),
+ *     @OA\Property (property="name", type="string", example="AK-47 | Redline"),
+ *     @OA\Property (property="type_id", type="integer", example="1"),
+ *     @OA\Property (property="price", type="float", example="1.00"),
+ *     @OA\Property (property="quality", type="float", example="1.15"),
+ *     @OA\Property (property="rarity", type="string", example="Covert"),
+ *     @OA\Property (property="image", type="string", example="https://cdn.csgo.com/item/AK-47%20%7C%20Redline/300.png"),
+ *     @OA\Property (property="source_marketplace_link", type="string", example="https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Redline%20%28Field-Tested%29"),
+ *     @OA\Property (property="source_preview_link", type="string", example="https://csgo.steamanalyst.com/id/1"),
+ *     @OA\Property (property="created_at", type="string", format="date-time", readOnly="true", example="2021-05-25T12:00:00+00:00"),
+ *     @OA\Property (property="updated_at", type="string", format="date-time", readOnly="true", example="2021-05-25T12:00:00+00:00")
+ * )
+ */
 class Item extends Model
 {
     use HasFactory;

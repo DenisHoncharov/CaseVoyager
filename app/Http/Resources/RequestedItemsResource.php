@@ -7,6 +7,15 @@ use App\Models\UserInventory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @OA\Schema(
+ *     title="RequestedItemsResource",
+ *     description="Requested items resource",
+ *     @OA\Property(property="id", type="integer", example="1"),
+ *     @OA\Property(property="requested_items", type="array", @OA\Items(ref="#/components/schemas/ItemsResource")),
+ *     @OA\Property(property="status", type="string", example="pending"),
+ * )
+ */
 class RequestedItemsResource extends JsonResource
 {
     /**
@@ -21,7 +30,7 @@ class RequestedItemsResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'requested_items' => $requestedItems,
+            'requested_items' => ItemsResource::collection($requestedItems),
             'status' => $this->status,
         ];
     }

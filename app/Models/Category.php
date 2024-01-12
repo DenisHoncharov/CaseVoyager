@@ -5,6 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @OA\Schema(
+ *     title="Category",
+ *     description="Category model",
+ *     @OA\Property (property="id", type="integer", example="1"),
+ *     @OA\Property (property="name", type="string", example="Category name"),
+ *     @OA\Property (property="type_id", type="integer", example="1"),
+ *     @OA\Property (property="image", type="string", example="https://i.imgur.com/1.jpg"),
+ *     @OA\Property (property="created_at", type="string", format="date-time", example="2021-08-25 12:00:00"),
+ *     @OA\Property (property="updated_at", type="string", format="date-time", example="2021-08-25 12:00:00")
+ * )
+ */
 class Category extends Model
 {
     use HasFactory;

@@ -5,6 +5,22 @@ namespace App\Http\Requests;
 use App\Rules\MaximumDropPercentageRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="CasesRequest",
+ *     description="Cases request body data",
+ *     required={"name", "type_id", "price"},
+ *     @OA\Property (property="name", type="string", example="Case 1"),
+ *     @OA\Property (property="type_id", type="integer", example="1"),
+ *     @OA\Property (property="price", type="float", example="1.00"),
+ *     @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
+ *     @OA\Property (property="description", type="string", example="Description"),
+ *     @OA\Property (property="items", type="array", @OA\Items(
+ *         @OA\Property (property="item_id", type="integer", example="1"),
+ *         @OA\Property (property="drop_percentage", type="float", example="1.00"),
+ *     )),
+ * )
+ */
 class CasesRequest extends FormRequest
 {
     /**

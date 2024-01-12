@@ -13,19 +13,67 @@ use App\Http\Resources\CasesResource;
 use App\Models\Cases;
 use App\Models\Item;
 use App\Models\OpenCaseResult;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Collection;
 
 class CasesApiController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * @OA\Get(
+     *     path="/api/cases",
+     *     summary="Show all cases",
+     *     tags={"Cases"},
+     *     @OA\Response(response="200", description="Show all cases", @OA\JsonContent(
+     *       @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/CasesResource"))
+     *     )
+     *   )
+     * )
+     *
+     * @param Request $request
+     * @return CasesResource
+     *
+     */
+    public function index(Request $request): JsonResource
     {
         return CasesResource::collection(Cases::all());
     }
 
-    public function show(Request $request, Cases $case)
+    /**
+     * @OA\Get(
+     *     path="/api/cases/{case}",
+     *     summary="Show case",
+     *     tags={"Cases"},
+     *     @OA\Parameter(
+     *         name="case",
+     *         in="path",
+     *         description="Case id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(response="200", description="Show case", @OA\JsonContent(
+     *         @OA\Property (property="id", type="integer", readOnly="true", example="1"),
+     *         @OA\Property (property="name", type="string", example="Case 1"),
+     *         @OA\Property (property="type", type="object", ref="#/components/schemas/Type"),
+     *         @OA\Property (property="price", type="float", example="1.00"),
+     *         @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
+     *         @OA\Property (property="description", type="string", example="Description"),
+     *         @OA\Property (property="items", type="array", @OA\Items(ref="#/components/schemas/Item"))
+     *      )
+     *   )
+     * )
+     *
+     * @param Request $request
+     * @param Cases $case
+     * @return JsonResponse
+     *
+     */
+    public function show(Request $request, Cases $case): JsonResponse
     {
-        return [
+        return response()->json([
             'id' => $case->id,
             'name' => $case->name,
             'type' => $case->type,
@@ -35,10 +83,39 @@ class CasesApiController extends Controller
             'items' => $case->items()
                 ->withPivot('drop_percentage')
                 ->get()
-        ];
+        ]);
     }
 
-    public function create(CasesRequest $request)
+    /**
+     * @OA\Post(
+     *     path="/api/cases/create",
+     *     summary="Create case",
+     *     tags={"Cases"},
+     *     @OA\RequestBody(
+     *         description="Create case object",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CasesRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Create case", @OA\JsonContent(
+     *         @OA\Property (property="id", type="integer", readOnly="true", example="1"),
+     *         @OA\Property (property="name", type="string", example="Case 1"),
+     *         @OA\Property (property="type", type="object", ref="#/components/schemas/Type"),
+     *         @OA\Property (property="price", type="float", example="1.00"),
+     *         @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
+     *         @OA\Property (property="description", type="string", example="Description"),
+     *         @OA\Property (property="items", type="array", @OA\Items(
+     *             @OA\Property (property="item_id", type="integer", example="1"),
+     *             @OA\Property (property="drop_percentage", type="float", example="1.00")
+     *         ))
+     *      )
+     *   )
+     * )
+     *
+     * @param CasesRequest $request
+     * @return JsonResponse
+     *
+     */
+    public function create(CasesRequest $request): JsonResponse
     {
         $case = Cases::create($request->validatedExcept(['items']));
 
@@ -49,7 +126,46 @@ class CasesApiController extends Controller
         return response()->json($case);
     }
 
-    public function update(CasesRequest $request, Cases $case)
+    /**
+     * @OA\Put(
+     *     path="/api/cases/{case}/update",
+     *     summary="Update case",
+     *     tags={"Cases"},
+     *     @OA\Parameter(
+     *         name="case",
+     *         in="path",
+     *         description="Case id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Update case object",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CasesRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Update case", @OA\JsonContent(
+     *         @OA\Property (property="id", type="integer", readOnly="true", example="1"),
+     *         @OA\Property (property="name", type="string", example="Case 1"),
+     *         @OA\Property (property="type", type="object", ref="#/components/schemas/Type"),
+     *         @OA\Property (property="price", type="float", example="1.00"),
+     *         @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
+     *         @OA\Property (property="description", type="string", example="Description"),
+     *         @OA\Property (property="items", type="array", @OA\Items(
+     *             @OA\Property (property="item_id", type="integer", example="1"),
+     *             @OA\Property (property="drop_percentage", type="float", example="1.00")
+     *         ))
+     *      )
+     *   )
+     * )
+     *
+     * @param CasesRequest $request
+     * @param Cases $case
+     * @return JsonResponse
+     *
+     */
+    public function update(CasesRequest $request, Cases $case): JsonResponse
     {
         $case->update($request->validatedExcept(['items']));
 
@@ -60,14 +176,58 @@ class CasesApiController extends Controller
         return response()->json($case);
     }
 
-    public function delete(Cases $case)
+    /**
+     * @OA\Delete(
+     *     path="/api/cases/{case}",
+     *     summary="Delete case",
+     *     tags={"Cases"},
+     *     @OA\Parameter(
+     *         name="case",
+     *         in="path",
+     *         description="Case id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *             example="1"
+     *         )
+     *     ),
+     *     @OA\Response(response="200", description="Delete case", @OA\JsonContent(type="object"))
+     * )
+     *
+     * @param Cases $case
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function delete(Cases $case): JsonResponse
     {
         $case->delete();
 
         return response()->json();
     }
 
-    public function openCase(Cases $case)
+    /**
+     * @OA\Get(
+     *     path="/api/cases/open/{case}",
+     *     summary="Open case",
+     *     tags={"Cases"},
+     *     @OA\Parameter(
+     *     name="case",
+     *     in="path",
+     *     description="Case id",
+     *     required=true,
+     *     @OA\Schema(
+     *     type="integer",
+     *     example="1"
+     *    )
+     *  ),
+     *     @OA\Response(response="200", description="Open case", @OA\JsonContent(ref="#/components/schemas/Item"))
+     * )
+     *
+     * @param Cases $case
+     * @return JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function openCase(Cases $case): JsonResponse
     {
         if (app()->make('getUserFromDBUsingAuth0')?->balance < $case->price) {
             return response()->json([
@@ -98,10 +258,48 @@ class CasesApiController extends Controller
             CaseOpenedEvent::dispatch($case, $selectedItem);
         }
 
-        return $selectedItem;
+        return response()->json($selectedItem);
     }
 
-    public function caseItems(CasesItemsRequest $request, Cases $case)
+    /**
+     * @OA\Post(
+     *     path="/api/cases/items/{case}",
+     *     summary="Sync case items",
+     *     tags={"Cases"},
+     *     @OA\Parameter(
+     *         name="case",
+     *         in="path",
+     *         description="Case id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *             example="1"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Sync case items object",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/CasesItemsRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Sync case items", @OA\JsonContent(
+     *         @OA\Property (property="id", type="integer", readOnly="true", example="1"),
+     *         @OA\Property (property="name", type="string", example="Case 1"),
+     *         @OA\Property (property="type_id", type="integer", example="1"),
+     *         @OA\Property (property="price", type="float", example="1.00"),
+     *         @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
+     *         @OA\Property (property="description", type="string", example="Description"),
+     *         @OA\Property (property="created_at", type="string", format="date-time", readOnly="true", example="2021-08-04T12:00:00.000000Z"),
+     *         @OA\Property (property="updated_at", type="string", format="date-time", readOnly="true", example="2021-08-04T12:00:00.000000Z"),
+     *         @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/Item"))
+     *     )
+     *   )
+     * )
+     *
+     * @param CasesItemsRequest $request
+     * @param Cases $case
+     * @return JsonResponse
+     */
+    public function caseItems(CasesItemsRequest $request, Cases $case): JsonResponse
     {
         $items = $request->validated('items');
 
@@ -112,7 +310,25 @@ class CasesApiController extends Controller
         return response()->json($case->with('items')->get());
     }
 
-    public function exchangeOpenedItems(ExchangeOpenedItemsRequest $request)
+    /**
+     * @OA\Post(
+     *     path="/api/cases/open/exchangeItems",
+     *     summary="Exchange opened items",
+     *     tags={"Cases"},
+     *     @OA\RequestBody(
+     *         description="Exchange opened items object",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ExchangeOpenedItemsRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Exchange opened items", @OA\JsonContent(type="object"))
+     * )
+     *
+     * @description This method is used to exchange opened items for balance
+     * @param ExchangeOpenedItemsRequest $request
+     * @return JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function exchangeOpenedItems(ExchangeOpenedItemsRequest $request): JsonResponse
     {
         $user = app()->make('getUserFromDBUsingAuth0');
 
@@ -123,6 +339,8 @@ class CasesApiController extends Controller
 
         UpdateUserBalanceEvent::dispatch($user, $itemsCost);
         ReceiveItemFromCaseEvent::dispatch($openedCases->pluck('id')->toArray());
+
+        return response()->json();
     }
 
     private function syncItems(Cases $case, array $items): void

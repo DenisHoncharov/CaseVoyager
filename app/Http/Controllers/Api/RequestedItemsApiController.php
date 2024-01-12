@@ -8,12 +8,29 @@ use App\Http\Requests\RequestedItemsCreateRequest;
 use App\Http\Requests\RequestedItemsUpdateStatusRequest;
 use App\Http\Resources\RequestedItemsResource;
 use App\Models\RequestedItems;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Validation\ValidationException;
 
 class RequestedItemsApiController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * @OA\Get(
+     *     path="/api/requestedItems",
+     *     summary="Show all requested items",
+     *     tags={"Requested Items"},
+     *     @OA\Response(response="200", description="Show all requested items", @OA\JsonContent(
+     *       @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/RequestedItemsResource"))
+     *     )
+     *   )
+     * )
+     *
+     * @param Request $request
+     * @return JsonResource
+     *
+     */
+    public function index(Request $request): JsonResource
     {
         $this->user = app()->make('getUserFromDBUsingAuth0');
 
@@ -26,7 +43,25 @@ class RequestedItemsApiController extends Controller
         return RequestedItemsResource::collection($requestedItems);
     }
 
-    public function create(RequestedItemsCreateRequest $request)
+    /**
+     * @OA\Post(
+     *     path="/api/requestedItems/create",
+     *     summary="Create requested items",
+     *     tags={"Requested Items"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/RequestedItemsCreateRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Create requested items", @OA\JsonContent(
+     *       ref="#/components/schemas/RequestedItems"
+     *     )
+     *   )
+     * )
+     *
+     * @param RequestedItemsCreateRequest $request
+     * @return JsonResponse
+     */
+    public function create(RequestedItemsCreateRequest $request): JsonResponse
     {
         $this->user = app()->make('getUserFromDBUsingAuth0');
 
@@ -44,7 +79,35 @@ class RequestedItemsApiController extends Controller
         ]);
     }
 
-    public function update(RequestedItemsUpdateStatusRequest $request, RequestedItems $requestedItem)
+    /**
+     * @OA\Put(
+     *     path="/api/requestedItems/{requestedItem}",
+     *     summary="Update requested item status",
+     *     tags={"Requested Items"},
+     *     @OA\Parameter(
+     *         name="requestedItem",
+     *         in="path",
+     *         description="Requested item id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/RequestedItemsUpdateStatusRequest")
+     *     ),
+     *     @OA\Response(response="200", description="Update requested item status", @OA\JsonContent(
+     *       ref="#/components/schemas/RequestedItems"
+     *     )
+     *   )
+     * )
+     *
+     * @param RequestedItemsUpdateStatusRequest $request
+     * @param RequestedItems $requestedItem
+     * @return JsonResponse
+     */
+    public function update(RequestedItemsUpdateStatusRequest $request, RequestedItems $requestedItem): JsonResponse
     {
         $requestedItem->update([
             'status' => $request->validated('status'),
@@ -55,7 +118,30 @@ class RequestedItemsApiController extends Controller
         ]);
     }
 
-    public function delete(RequestedItems $requestedItem)
+    /**
+     * @OA\Delete(
+     *     path="/api/requestedItems/{requestedItem}",
+     *     summary="Delete requested item",
+     *     tags={"Requested Items"},
+     *     @OA\Parameter(
+     *         name="requestedItem",
+     *         in="path",
+     *         description="Requested item id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(response="200", description="Delete requested item", @OA\JsonContent(
+     *       ref="#/components/schemas/RequestedItems"
+     *     )
+     *   )
+     * )
+     *
+     * @param RequestedItems $requestedItem
+     * @return JsonResponse|ValidationException
+     */
+    public function delete(RequestedItems $requestedItem): JsonResponse|ValidationException
     {
         if ($requestedItem->status === 'on_approval') {
             $isDeleted = $requestedItem->delete();

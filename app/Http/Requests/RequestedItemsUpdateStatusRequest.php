@@ -6,6 +6,14 @@ use App\Models\RequestedItems;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * @OA\Schema(
+ *     title="RequestedItemsUpdateStatusRequest",
+ *     description="RequestedItemsUpdateStatus request body data",
+ *     required={"status"},
+ *     @OA\Property (property="status", type="string", example="pending"),
+ * )
+ */
 class RequestedItemsUpdateStatusRequest extends FormRequest
 {
     /**
