@@ -4,6 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="RequestedItemsCreateRequest",
+ *     description="RequestedItemsCreate request body data",
+ *     required={"inventory_ids"},
+ *     @OA\Property (property="inventory_ids", type="array", @OA\Items(type="integer", example="1")),
+ * )
+ */
 class RequestedItemsCreateRequest extends FormRequest
 {
     /**

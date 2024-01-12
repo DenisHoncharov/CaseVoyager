@@ -5,6 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="ExchangeOpenedItemsRequest",
+ *     description="ExchangeOpenedItems request body data",
+ *     required={"openedCasesIds"},
+ *     @OA\Property (property="openedCasesIds", type="array", @OA\Items(type="integer", example="1")),
+ * )
+ */
 class ExchangeOpenedItemsRequest extends FormRequest
 {
     /**

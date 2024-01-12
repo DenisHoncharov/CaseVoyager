@@ -4,6 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *      title="CasesItemsRequest",
+ *      description="Cases items request body data",
+ *      required={"cases"},
+ *     @OA\Property (property="cases", type="array", @OA\Items(type="integer", example="1")),
+ * )
+ */
 class CategoryCasesRequest extends FormRequest
 {
     /**

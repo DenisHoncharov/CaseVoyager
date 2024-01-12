@@ -5,6 +5,17 @@ namespace App\Http\Requests;
 use App\Rules\IsItemFromUserOpenedCaseRule;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     title="AddItemToInventoryRequest",
+ *     description="Add item to inventory request body data",
+ *     required={"items"},
+ *     @OA\Property (property="items", type="array", @OA\Items(
+ *         @OA\Property (property="openCaseResultId", type="integer", example="1"),
+ *         @OA\Property (property="item_id", type="integer", example="1"),
+ *     )),
+ * )
+ */
 class AddItemToInventoryRequest extends FormRequest
 {
     /**
