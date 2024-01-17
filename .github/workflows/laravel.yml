@@ -33,3 +33,5 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: vendor/bin/phpunit
+    - name: Generate API documentation
+      run: php artisan l5-swagger:generate
