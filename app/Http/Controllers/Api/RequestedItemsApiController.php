@@ -32,12 +32,12 @@ class RequestedItemsApiController extends Controller
      */
     public function index(Request $request): JsonResource
     {
-        $this->user = app()->make('getUserFromDBUsingAuth0');
+        $user = app()->make('getUserFromDBUsingAuth0');
 
-        if ($request->has('isAdmin') && $this->user->isAdmin()) {
+        if ($request->has('isAdmin') && $user->can('requestedItem viewAllRequests')) {
             $requestedItems = RequestedItems::all();
         } else {
-            $requestedItems = $this->user->requestedItems()->get();
+            $requestedItems = $user->requestedItems()->get();
         }
 
         return RequestedItemsResource::collection($requestedItems);
@@ -63,11 +63,11 @@ class RequestedItemsApiController extends Controller
      */
     public function create(RequestedItemsCreateRequest $request): JsonResponse
     {
-        $this->user = app()->make('getUserFromDBUsingAuth0');
+        $user = app()->make('getUserFromDBUsingAuth0');
 
         $userInventoryIds = $request->validated('inventory_ids');
 
-        $this->user->requestedItems()->create([
+        $user->requestedItems()->create([
             'inventory_ids' => json_encode($userInventoryIds),
             'status' => 'on_approval',
         ]);

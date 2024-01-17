@@ -70,7 +70,6 @@ Route::middleware('auth')->name('api.')->group(function () {
         Route::get('/', [RequestedItemsApiController::class, 'index'])->name('all');
         Route::post('/create', [RequestedItemsApiController::class, 'create'])->name('create');
 
-        //todo: add middleware to check if user is admin
         Route::put('/{requestedItem}', [RequestedItemsApiController::class, 'update'])->name('update');
 
         Route::delete('/{requestedItem}', [RequestedItemsApiController::class, 'delete'])->name('delete');

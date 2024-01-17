@@ -30,6 +30,7 @@ class RequestedItemsResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'user_id' => $this->user_id,
             'requested_items' => ItemsResource::collection($requestedItems),
             'status' => $this->status,
         ];

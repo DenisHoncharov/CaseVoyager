@@ -58,11 +58,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(RequestedItems::class);
     }
-
-    //TODO: Implement isAdmin
-    public function isAdmin() :bool
-    {
-        //TODO: Implement isAdmin logic
-        return true;
-    }
 }
