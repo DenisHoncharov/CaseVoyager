@@ -11,6 +11,7 @@ use Auth0\Laravel\Entities\CredentialEntity;
 use Auth0\Laravel\Traits\Impersonate;
 use Auth0\Laravel\Users\ImposterUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class RequestedItemsApiControllerTest extends TestCase
@@ -45,12 +46,12 @@ class RequestedItemsApiControllerTest extends TestCase
     }
 
     /** @test */
-    public function admin_user_can_show_all_items_request()
+    public function user_with_viewAllRequest_permission_can_show_all_items_request()
     {
-        $this->markTestIncomplete('Need to implement admin role');
-
         $imposter = new ImposterUser(['sub' => 'auth0|example']);
         $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+        $permission = Permission::create(['name' => 'requestedItem viewAllRequests']);
+        $user->givePermissionTo($permission);
 
         RequestedItems::factory(2)->create();
 
@@ -59,6 +60,25 @@ class RequestedItemsApiControllerTest extends TestCase
         $response->assertOk();
 
         $response->assertJsonCount(2, 'data');
+    }
+
+    /** @test */
+    public function user_without_viewAllRequest_permission_can_show_only_own_items_request()
+    {
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+
+        $userRequest = RequestedItems::factory()->create([
+            'user_id' => $user->id,
+        ]);
+        RequestedItems::factory(2)->create();
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->getJson(route('api.request-items.all') . '?isAdmin=1');
+        $response->assertOk();
+
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($userRequest->id, $response->json('data.0.id'));
     }
 
     /** @test */
@@ -118,32 +138,8 @@ class RequestedItemsApiControllerTest extends TestCase
     }
 
     /** @test */
-    public function user_can_update_request_items_status()
+    public function user_without_updateStatus_permission_can_not_update_request_items_status()
     {
-        $requestedItem = RequestedItems::factory()->create([
-            'status' => 'on_approval',
-        ]);
-
-        $imposter = new ImposterUser(['sub' => 'auth0|example']);
-
-        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
-            ->putJson(route('api.request-items.update', $requestedItem->id), [
-                'status' => 'approved',
-            ]);
-        $response->assertOk();
-
-        $this->assertDatabaseHas('requested_items', [
-            'id' => $requestedItem->id,
-            'status' => 'approved',
-        ]);
-    }
-
-    /** @test */
-    public function only_admin_can_update_request_items_status()
-    {
-        //TODO: implement admin role
-        $this->markTestIncomplete('Need to implement admin role');
-
         $requestedItem = RequestedItems::factory()->create([
             'status' => 'on_approval',
         ]);
@@ -156,7 +152,31 @@ class RequestedItemsApiControllerTest extends TestCase
             ]);
         $response->assertStatus(403);
 
-        $this->assertDatabaseMissing('requested_items', [
+        $this->assertDatabaseHas('requested_items', [
+            'id' => $requestedItem->id,
+            'status' => 'on_approval',
+        ]);
+    }
+
+    /** @test */
+    public function user_with_updateStatus_permission_can_update_request_items_status()
+    {
+        $requestedItem = RequestedItems::factory()->create([
+            'status' => 'on_approval',
+        ]);
+
+        $imposter = new ImposterUser(['sub' => 'auth0|example']);
+        $user = User::factory()->create(['auth0_id' => $imposter->getAuthIdentifier()]);
+        $permission = Permission::create(['name' => 'requestedItem updateStatus']);
+        $user->givePermissionTo($permission);
+
+        $response = $this->impersonateToken(CredentialEntity::create($imposter), 'auth0-api')
+            ->putJson(route('api.request-items.update', $requestedItem->id), [
+                'status' => 'approved',
+            ]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('requested_items', [
             'id' => $requestedItem->id,
             'status' => 'approved',
         ]);

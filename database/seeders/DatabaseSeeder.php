@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
 
             CaseCategorySeeder::class,
             CaseItemSeeder::class,
+
+            SpatieRolesAndPermissionsSeeder::class,
         ]);
     }
 }
