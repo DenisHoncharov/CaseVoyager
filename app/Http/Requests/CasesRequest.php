@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
  *     @OA\Property (property="description", type="string", example="Description"),
  *     @OA\Property (property="items", type="array", @OA\Items(
  *         @OA\Property (property="item_id", type="integer", example="1"),
- *         @OA\Property (property="drop_percentage", type="float", example="1.00"),
+ *         @OA\Property (property="drop_percentage", type="float", example="1.00000000000000000000000000000000000000000000"),
  *     )),
  * )
  */
