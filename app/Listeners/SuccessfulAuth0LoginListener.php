@@ -15,13 +15,13 @@ class SuccessfulAuth0LoginListener
          * TODO: check with FE application if we can get user data from Auth0
          * if possible (save email and other staff from Auth0 to DB)
         */
-        User::firstOrCreate([
-            'auth0_id' => $event->payload['sub']
-        ],
-        [
-            'email' => $event->payload['email'] ?? '',
-            'name' => $event->payload['name'] ?? '',
-            'balance' => 0
-        ]);
+        User::firstOrCreate(
+            ['auth0_id' => $event->payload['sub']],
+            [
+                'email' => $event->payload['email'] ?? '',
+                'name' => $event->payload['name'] ?? '',
+                'balance' => 0
+            ]
+        );
     }
 }

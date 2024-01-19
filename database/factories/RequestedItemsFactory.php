@@ -7,7 +7,7 @@ use App\Models\UserInventory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RequestedItems>
+ * @extends Factory<\App\Models\RequestedItems>
  */
 class RequestedItemsFactory extends Factory
 {

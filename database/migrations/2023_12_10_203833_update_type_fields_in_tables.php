@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Type;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -25,7 +26,7 @@ return new class extends Migration
             }
 
             Schema::table($table, function (Blueprint $table) {
-                $table->foreignIdFor(\App\Models\Type::class)
+                $table->foreignIdFor(Type::class)
                     ->nullable()
                     ->after('name')
                     ->nullOnDelete();
@@ -41,7 +42,7 @@ return new class extends Migration
         foreach (self::TABLES_WITH_TYPE_COLUMN as $table) {
             if (Schema::hasColumn($table, 'type_id')) {
                 Schema::table($table, function (Blueprint $table) {
-                    $table->dropForeignIdFor(\App\Models\Type::class);
+                    $table->dropForeignIdFor(Type::class);
                 });
             }
 

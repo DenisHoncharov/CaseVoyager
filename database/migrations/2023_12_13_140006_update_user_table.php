@@ -16,7 +16,7 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->float('balance', 8, 2)->default(0)->after('id');
+            $table->float('balance')->default(0)->after('id');
             $table->string('telegram_id', 30)->nullable()->after('id');
             $table->string('auth0_id')->nullable()->after('id');
         });

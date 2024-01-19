@@ -21,10 +21,9 @@ class TypeApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index()
     {
         return TypeResource::collection(Type::all());
     }
@@ -74,11 +73,10 @@ class TypeApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @param Type $type
      * @return array
      */
-    public function show(Request $request, Type $type)
+    public function show(Type $type)
     {
         return [
             'id' => $type->id,

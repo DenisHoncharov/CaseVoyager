@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Feature\Models;
 
 use App\Models\Cases;
-use App\Models\Category;
 use App\Models\Item;
 use App\Models\Type;
 use App\Models\User;

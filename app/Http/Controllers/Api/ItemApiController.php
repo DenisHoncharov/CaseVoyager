@@ -23,11 +23,10 @@ class ItemApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @return JsonResource
      *
      */
-    public function index(Request $request): JsonResource
+    public function index(): JsonResource
     {
         return ItemsResource::collection(Item::all());
     }
@@ -52,11 +51,10 @@ class ItemApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @param Item $item
      * @return JsonResponse
      */
-    public function show(Request $request, Item $item): JsonResponse
+    public function show(Item $item): JsonResponse
     {
         return response()->json([
             'id' => $item->id,

@@ -33,7 +33,8 @@ Route::middleware('auth')->name('api.')->group(function () {
     Route::prefix('cases')->name('cases.')->group(function () {
         Route::get('/open/{case}', [CasesApiController::class, 'openCase'])->name('open');
         Route::post('/items/{case}', [CasesApiController::class, 'caseItems'])->name('items');
-        Route::post('/open/exchangeItems', [CasesApiController::class, 'exchangeOpenedItems'])->name('exchangeOpenedItems');
+        Route::post('/open/exchangeItems', [CasesApiController::class, 'exchangeOpenedItems'])
+            ->name('exchangeOpenedItems');
 
         Route::get('/', [CasesApiController::class, 'index'])->name('all');
         Route::get('/{case}', [CasesApiController::class, 'show'])->name('show');
@@ -50,7 +51,7 @@ Route::middleware('auth')->name('api.')->group(function () {
         Route::delete('/{item}', [ItemApiController::class, 'delete'])->name('delete');
     });
 
-    Route::prefix('types')->name('types.')->group(function() {
+    Route::prefix('types')->name('types.')->group(function () {
         Route::get('/', [TypeApiController::class, 'index'])->name('all');
         Route::get('/{type}', [TypeApiController::class, 'show'])->name('show');
         Route::post('/create', [TypeApiController::class, 'create'])->name('create');

@@ -25,7 +25,13 @@ class RequestedItemsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $requestedItems = Item::whereIn('id', UserInventory::whereIn('id', json_decode($this->inventory_ids))->pluck('item_id'))
+        $requestedItems = Item::whereIn(
+            'id',
+            UserInventory::whereIn(
+                'id',
+                json_decode($this->inventory_ids)
+            )->pluck('item_id')
+        )
             ->get();
 
         return [

@@ -9,14 +9,14 @@ use Illuminate\Http\Request;
 class UserApiController extends Controller
 {
     /**
-     * This is tmp route if we wanted to use it in the future (It is no tests for it, if tests exist, remove this comment)
+     * This is tmp route if we wanted to use it in the future.
+     * (It is no tests for it, if tests exist - remove this comment)
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function getCurrentUser(Request $request)
+    public function getCurrentUser()
     {
         $user = auth()->id();
         $profile = cache()->get($user);

@@ -7,7 +7,7 @@ use App\Models\Type;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<Cases>
+ * @extends Factory<Cases>
  */
 class CasesFactory extends Factory
 {

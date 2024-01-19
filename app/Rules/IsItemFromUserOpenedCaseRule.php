@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use App\Models\OpenCaseResult;
 use Closure;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class IsItemFromUserOpenedCaseRule implements ValidationRule
@@ -11,7 +12,9 @@ class IsItemFromUserOpenedCaseRule implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
+     * @throws BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {

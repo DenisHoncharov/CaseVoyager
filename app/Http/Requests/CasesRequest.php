@@ -37,7 +37,7 @@ class CasesRequest extends FormRequest
             'image' => 'sometimes|string',
             'description' => 'sometimes|string',
 
-            'items' => ['array', new MaximumDropPercentageRule],
+            'items' => ['array', new MaximumDropPercentageRule()],
             'items.*.item_id' => 'exists:items,id',
             'items.*.drop_percentage' => 'numeric|min:0|max:100'
         ];

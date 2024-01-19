@@ -4,8 +4,6 @@ namespace App\Listeners;
 
 use App\Events\CaseOpenedEvent;
 use App\Models\OpenCaseResult;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class CaseOpenedListener
 {
