@@ -13,5 +13,4 @@ namespace App\helpers;
  */
 class OpenApiSpec
 {
-
 }

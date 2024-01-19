@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -18,6 +19,8 @@ class ExchangeInventoryItemToBalanceRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @throws BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function rules(): array
     {

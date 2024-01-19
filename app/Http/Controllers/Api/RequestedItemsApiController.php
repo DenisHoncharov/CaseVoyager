@@ -8,6 +8,7 @@ use App\Http\Requests\RequestedItemsCreateRequest;
 use App\Http\Requests\RequestedItemsUpdateStatusRequest;
 use App\Http\Resources\RequestedItemsResource;
 use App\Models\RequestedItems;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,6 +30,8 @@ class RequestedItemsApiController extends Controller
      * @param Request $request
      * @return JsonResource
      *
+     * @throws BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function index(Request $request): JsonResource
     {
@@ -60,6 +63,8 @@ class RequestedItemsApiController extends Controller
      *
      * @param RequestedItemsCreateRequest $request
      * @return JsonResponse
+     * @throws BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function create(RequestedItemsCreateRequest $request): JsonResponse
     {
@@ -140,6 +145,8 @@ class RequestedItemsApiController extends Controller
      *
      * @param RequestedItems $requestedItem
      * @return JsonResponse|ValidationException
+     * @throws ValidationException
+     * @throws ValidationException
      */
     public function delete(RequestedItems $requestedItem): JsonResponse|ValidationException
     {
@@ -156,7 +163,9 @@ class RequestedItemsApiController extends Controller
                 'message' => 'Requested item deleted successfully',
             ]);
         } else {
-            throw ValidationException::withMessages(['status' => 'Only items with status "on_approval" can be deleted']);
+            throw ValidationException::withMessages([
+                'status' => 'Only items with status "on_approval" can be deleted'
+            ]);
         }
     }
 }

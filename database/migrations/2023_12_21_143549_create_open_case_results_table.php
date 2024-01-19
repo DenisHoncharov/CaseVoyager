@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Cases;
+use App\Models\Item;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,9 +17,9 @@ return new class extends Migration
         if (!Schema::hasTable('open_case_results')) {
             Schema::create('open_case_results', function (Blueprint $table) {
                 $table->id();
-                $table->foreignIdFor(\App\Models\User::class);
-                $table->foreignIdFor(\App\Models\Cases::class, 'opened_case_id');
-                $table->foreignIdFor(\App\Models\Item::class);
+                $table->foreignIdFor(User::class);
+                $table->foreignIdFor(Cases::class, 'opened_case_id');
+                $table->foreignIdFor(Item::class);
                 $table->boolean('is_received')->default(false);
                 $table->timestamps();
             });

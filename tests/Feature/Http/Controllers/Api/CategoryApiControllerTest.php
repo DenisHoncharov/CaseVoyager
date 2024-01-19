@@ -4,7 +4,6 @@ namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Cases;
 use App\Models\Category;
-use App\Models\User;
 use Auth0\Laravel\Entities\CredentialEntity;
 use Auth0\Laravel\Traits\Impersonate;
 use Auth0\Laravel\Users\ImposterUser;

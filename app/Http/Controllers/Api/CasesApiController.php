@@ -31,11 +31,10 @@ class CasesApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @return CasesResource
      *
      */
-    public function index(Request $request): JsonResource
+    public function index(): JsonResource
     {
         return CasesResource::collection(Cases::all());
     }
@@ -66,12 +65,11 @@ class CasesApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @param Cases $case
      * @return JsonResponse
      *
      */
-    public function show(Request $request, Cases $case): JsonResponse
+    public function show(Cases $case): JsonResponse
     {
         return response()->json([
             'id' => $case->id,
@@ -236,7 +234,7 @@ class CasesApiController extends Controller
         }
 
         $items = $case->items()
-            ->wherePivot('drop_percentage', '>',  0)
+            ->wherePivot('drop_percentage', '>', 0)
             ->withPivot('drop_percentage')
             ->get();
 
@@ -288,8 +286,20 @@ class CasesApiController extends Controller
      *         @OA\Property (property="price", type="float", example="1.00"),
      *         @OA\Property (property="image", type="string", example="https://via.placeholder.com/150"),
      *         @OA\Property (property="description", type="string", example="Description"),
-     *         @OA\Property (property="created_at", type="string", format="date-time", readOnly="true", example="2021-08-04T12:00:00.000000Z"),
-     *         @OA\Property (property="updated_at", type="string", format="date-time", readOnly="true", example="2021-08-04T12:00:00.000000Z"),
+     *         @OA\Property (
+     *              property="created_at",
+     *              type="string",
+     *              format="date-time",
+     *              readOnly="true",
+     *              example="2021-08-04T12:00:00.000000Z"
+     *          ),
+     *         @OA\Property (
+     *              property="updated_at",
+     *              type="string",
+     *              format="date-time",
+     *              readOnly="true",
+     *              example="2021-08-04T12:00:00.000000Z"
+     *          ),
      *         @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/Item"))
      *     )
      *   )
@@ -356,7 +366,7 @@ class CasesApiController extends Controller
 
         $user_id = app()->make('getUserFromDBUsingAuth0')?->id;
 
-        return collect($items)->map(function ($item) use ($user_id){
+        return collect($items)->map(function ($item) use ($user_id) {
             $item['user_id'] = $user_id;
             return $item;
         });

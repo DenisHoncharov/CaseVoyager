@@ -16,18 +16,38 @@ use Spatie\Permission\Traits\HasRoles;
  *     @OA\Property (property="id", type="integer", example="1"),
  *     @OA\Property (property="auth0_id", type="string", example="google-oauth2|12345678901234"),
  *     @OA\Property (property="telegram_id", type="string", example="1234567890"),
- *     @OA\Property (property="steam_profile_url", type="string", example="https://steamcommunity.com/profiles/1234567890"),
- *     @OA\Property (property="steam_trade_link", type="string", example="https://steamcommunity.com/tradeoffer/new/?partner=1234567890&token=1234567890"),
+ *     @OA\Property (property="steam_profile_url", type="string", example="https://steamcommunity.com/profiles/1234"),
+ *     @OA\Property (property="steam_trade_link", type="string", example="https://steamcommunity.com/tradeoffer/"),
  *     @OA\Property (property="balance", type="float", example="1.15"),
  *     @OA\Property (property="email", type="string", example="example@email.com"),
- *     @OA\Property (property="email_verified_at", type="string", format="date-time", example="2021-08-04T12:00:00.000000Z"),
- *     @OA\Property (property="created_at", type="string", format="date-time", example="2021-08-04T12:00:00.000000Z"),
- *     @OA\Property (property="updated_at", type="string", format="date-time", example="2021-08-04T12:00:00.000000Z")
+ *     @OA\Property (
+ *          property="email_verified_at",
+ *          type="string",
+ *          format="date-time",
+ *          example="2021-08-04T12:00:00.000000Z"
+ *      ),
+ *     @OA\Property (
+ *           property="created_at",
+ *           type="string",
+ *           format="date-time",
+ *           readOnly="true",
+ *           example="2021-08-04T12:00:00.000000Z"
+ *       ),
+ *      @OA\Property (
+ *            property="updated_at",
+ *            type="string",
+ *            format="date-time",
+ *            readOnly="true",
+ *            example="2021-08-04T12:00:00.000000Z"
+ *        ),
  * )
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.

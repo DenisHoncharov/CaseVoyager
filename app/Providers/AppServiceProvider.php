@@ -31,14 +31,16 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            return User::firstOrCreate([
-                'auth0_id' => auth()->id()
+            return User::firstOrCreate(
+                [
+                    'auth0_id' => auth()->id()
                 ],
                 [
                     'email' => auth()->user()->email ?? '',
                     'name' => auth()->user()->name ?? '',
                     'balance' => 0
-                ]);
+                ]
+            );
         });
     }
 }

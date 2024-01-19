@@ -9,7 +9,6 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryApiController extends Controller
@@ -25,11 +24,10 @@ class CategoryApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @return CategoryResource
      *
      */
-    public function index(Request $request): JsonResource
+    public function index(): JsonResource
     {
         $categories = Category::with('cases')->get();
 
@@ -59,7 +57,10 @@ class CategoryApiController extends Controller
     {
         $category = Category::create($request->validatedExcept(['cases']));
 
-        $category->cases()->syncWithPivotValues($request->validated('cases'), ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]);
+        $category->cases()->syncWithPivotValues(
+            $request->validated('cases'),
+            ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]
+        );
 
         return response()->json($category);
     }
@@ -85,12 +86,11 @@ class CategoryApiController extends Controller
      *   )
      * )
      *
-     * @param Request $request
      * @param Category $category
      * @return JsonResponse
      *
      */
-    public function show(Request $request, Category $category): JsonResponse
+    public function show(Category $category): JsonResponse
     {
         return response()->json([
             'id' => $category->id,
@@ -127,14 +127,17 @@ class CategoryApiController extends Controller
      *
      * @param CategoryRequest $request
      * @param Category $category
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @return JsonResponse
+     * @throws BindingResolutionException
      */
     public function update(CategoryRequest $request, Category $category)
     {
         $category->update($request->validatedExcept(['cases']));
 
-        $category->cases()->syncWithPivotValues($request->validated('cases'), ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]);
+        $category->cases()->syncWithPivotValues(
+            $request->validated('cases'),
+            ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]
+        );
 
         return response()->json($category);
     }
@@ -206,7 +209,10 @@ class CategoryApiController extends Controller
      */
     public function categoryCases(CategoryCasesRequest $request, Category $category): JsonResponse
     {
-        $category->cases()->syncWithPivotValues($request->validated('cases'), ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]);
+        $category->cases()->syncWithPivotValues(
+            $request->validated('cases'),
+            ['user_id' => app()->make('getUserFromDBUsingAuth0')?->id]
+        );
 
         return response()->json($category->with('cases')->get());
     }
